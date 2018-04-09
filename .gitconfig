@@ -1,0 +1,18 @@
+[user]
+	name = David Freese
+	email = dfreese@stanford.edu
+[push]
+	default = simple
+[alias]
+    last = log -n1 --decorate
+    # https://stackoverflow.com/a/35075021/2465202
+    graph = log --graph --oneline --decorate --all
+    # https://stackoverflow.com/a/7067489/2465202
+    alias = config --get-regexp ^alias\\.
+    # Basic abbreviations
+    a = add
+    c = commit
+    ca = commit -a
+    cam = commit -am
+    d = diff
+    s = status
