@@ -201,14 +201,15 @@ def FlagsForCompilationDatabase(root, filename):
         if not compilation_info:
             logging.info("No compilation info for " + filename + " in compilation database")
             return None
-        return list(compilation_info)
+        return list(compilation_info.compiler_flags_)
         '''
         This seemed to be causing problems.  Figure out what was up as some point.
         return MakeRelativePathsInFlagsAbsolute(
                 compilation_info.compiler_flags_,
                 compilation_info.compiler_working_dir_)
         '''
-    except:
+    except Exception as e:
+        logging.info(e)
         return None
 
 def FlagsForFile(filename):

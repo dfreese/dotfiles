@@ -74,6 +74,9 @@ let g:ycm_confirm_extra_conf=0
 
 au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp tw=79 fo+=t colorcolumn=80
 au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp tw=79 fo+=t colorcolumn=80
+" set cuda header files used in cudarecon to be parsed as cpp files
+au BufReadPost *.cuh set syntax=cpp
+
 
 " https://www.reddit.com/r/vim/comments/43sfkm/vim_auto_wrap_long_lines_when_writing/czkwnyb/
 au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown tw=79 fo+=t colorcolumn=80
