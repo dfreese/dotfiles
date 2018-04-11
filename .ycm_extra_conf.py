@@ -60,30 +60,93 @@ HEADER_DIRECTORIES = [
 
 BUILD_DIRECTORY = 'build';
 
+class Git(object):
+    def __init__(self):
+        try:
+            self.root = subprocess.check_output(
+                    'git rev-parse --show-toplevel'.split()).splitlines()[0]
+            self.files = subprocess.check_output(
+                    'git ls-tree --full-tree --name-only -r HEAD'.split()
+                    ).splitlines()
+            self.root = self.root.decode('utf-8')
+            self.files = tuple(x.decode('utf-8') for x in self.files)
+        except:
+            self.root = None
+            self.files = None
+        self._abs = None
+        self._rel = None
+
+    def abs_files(self):
+        if not self.root:
+            return None
+        if not self._abs:
+           self._abs = tuple(os.path.join(self.root, x) for x in self.files)
+        return self._abs
+
+    def relate(self):
+        if not self.root:
+            return None
+        if not self._rel:
+            self._rel = {os.path.basename(x):x for x in self.abs_files()}
+        return self._rel
+
+
 def IsHeaderFile(filename):
     extension = os.path.splitext(filename)[1]
     return extension in HEADER_EXTENSIONS
 
-def GetCompilationInfoForFile(database, filename):
-    if IsHeaderFile(filename):
-        basename = os.path.splitext(filename)[0]
-        for extension in SOURCE_EXTENSIONS:
-            # Get info from the source files by replacing the extension.
-            replacement_file = basename + extension
-            if os.path.exists(replacement_file):
-                compilation_info = database.GetCompilationInfoForFile(replacement_file)
-                if compilation_info.compiler_flags_:
-                    return compilation_info
-            # If that wasn't successful, try replacing possible header directory with possible source directories.
-            for header_dir in HEADER_DIRECTORIES:
-                for source_dir in SOURCE_DIRECTORIES:
-                    src_file = replacement_file.replace(header_dir, source_dir)
-                    if os.path.exists(src_file):
-                        compilation_info = database.GetCompilationInfoForFile(src_file)
-                        if compilation_info.compiler_flags_:
-                            return compilation_info
+git = None
+
+def AlternativeTransUnit(filename):
+    if not git
+        git = Git()
+    if not git.root:
         return None
-    return database.GetCompilationInfoForFile(filename)
+    base, ext = os.path.splitext(os.path.basename(filename))
+
+    # Try and replace the extension of the file first and see if there's
+    # another file in the git directory
+    for alt_ext in SOURCE_EXTENSIONS:
+        alt_file = base + alt_ext
+        if alt_file in git.relate():
+            return git.relate()[alt_file]
+
+    # Otherwise, just return the first translation unit, and hope for the best
+    for alt_file in git.abs_files():
+        root, ext = os.path.splitext(alt_file)
+        if ext in SOURCE_EXTENSIONS:
+            return alt_file
+    # But if nothing really exists, then just don't worry about it
+    return None
+
+def GetCompilationInfoForFile(database, filename):
+    if not IsHeaderFile(filename):
+        return database.GetCompilationInfoForFile(filename)
+    else:
+        logging.info('trying to find alternative for header file')
+        alt = AlternativeTransUnit(filename)
+        if alt:
+            logging.info('found alternative {}'.format(alt))
+            return database.GetCompilationInfoForFile(alt)
+
+    # Try old logic
+    basename = os.path.splitext(filename)[0]
+    for extension in SOURCE_EXTENSIONS:
+        # Get info from the source files by replacing the extension.
+        replacement_file = basename + extension
+        if os.path.exists(replacement_file):
+            compilation_info = database.GetCompilationInfoForFile(replacement_file)
+            if compilation_info.compiler_flags_:
+                return compilation_info
+        # If that wasn't successful, try replacing possible header directory with possible source directories.
+        for header_dir in HEADER_DIRECTORIES:
+            for source_dir in SOURCE_DIRECTORIES:
+                src_file = replacement_file.replace(header_dir, source_dir)
+                if os.path.exists(src_file):
+                    compilation_info = database.GetCompilationInfoForFile(src_file)
+                    if compilation_info.compiler_flags_:
+                        return compilation_info
+    return None
 
 def FindNearest(path, target, build_folder=None):
     candidate = os.path.join(path, target)
@@ -102,35 +165,6 @@ def FindNearest(path, target, build_folder=None):
             return candidate;
 
     return FindNearest(parent, target, build_folder)
-
-def MakeRelativePathsInFlagsAbsolute(flags, working_directory):
-    if not working_directory:
-        return list(flags)
-    new_flags = []
-    make_next_absolute = False
-    path_flags = [ '-isystem', '-I', '-iquote', '--sysroot=' ]
-    for flag in flags:
-        new_flag = flag
-
-        if make_next_absolute:
-            make_next_absolute = False
-            if not flag.startswith('/'):
-                new_flag = os.path.join(working_directory, flag)
-
-        for path_flag in path_flags:
-            if flag == path_flag:
-                make_next_absolute = True
-                break
-
-            if flag.startswith(path_flag):
-                path = flag[ len(path_flag): ]
-                new_flag = path_flag + os.path.join(working_directory, path)
-                break
-
-        if new_flag:
-            new_flags.append(new_flag)
-    return new_flags
-
 
 def FlagsForClangComplete(root):
     try:
@@ -185,39 +219,26 @@ def FlagsForSystem():
     else:
         return []
 
-def FlagsForCompilationDatabase(root, filename):
+def FindDatabase(root):
     try:
-        # Last argument of next function is the name of the build folder for
-        # out of source projects
         compilation_db_path = FindNearest(root, 'compile_commands.json', BUILD_DIRECTORY)
-        compilation_db_dir = os.path.dirname(compilation_db_path)
-        logging.info("Set compilation database directory to " + compilation_db_dir)
-        compilation_db =  ycm_core.CompilationDatabase(compilation_db_dir)
-        if not compilation_db:
-            logging.info("Compilation database file found but unable to load")
-            return None
-        # return database.GetCompilationInfoForFile(filename)
-        compilation_info = GetCompilationInfoForFile(compilation_db, filename)
-        if not compilation_info:
-            logging.info("No compilation info for " + filename + " in compilation database")
-            return None
-        return list(compilation_info.compiler_flags_)
-        '''
-        This seemed to be causing problems.  Figure out what was up as some point.
-        return MakeRelativePathsInFlagsAbsolute(
-                compilation_info.compiler_flags_,
-                compilation_info.compiler_working_dir_)
-        '''
+        compilation_database_folder = os.path.dirname(compilation_db_path)
+        logging.info("Set compilation database directory to " + compilation_database_folder)
+        return ycm_core.CompilationDatabase(compilation_database_folder)
     except Exception as e:
         logging.info(e)
         return None
 
 def FlagsForFile(filename):
     root = os.path.realpath(filename);
-    compilation_db_flags = FlagsForCompilationDatabase(root, filename)
-    if compilation_db_flags:
-        final_flags = compilation_db_flags
+    database = FindDatabase(root)
+    compilation_info = GetCompilationInfoForFile(database, filename)
+    if compilation_info is not None:
+        final_flags = list(compilation_info.compiler_flags_)
+        rel_dir = compilation_info.compiler_working_dir_
     else:
+        logging.info("No compilation info for " + filename + " in compilation database")
+        rel_dir = ''
         final_flags = BASE_FLAGS
         clang_flags = FlagsForClangComplete(root)
         if clang_flags:
@@ -229,5 +250,6 @@ def FlagsForFile(filename):
     final_flags += FlagsForSystem()
     return {
             'flags': final_flags,
-            'do_cache': True
+            'do_cache': True,
+            'include_paths_relative_to_dir': rel_dir,
             }
