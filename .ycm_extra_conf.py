@@ -98,7 +98,7 @@ def IsHeaderFile(filename):
 git = None
 
 def AlternativeTransUnit(filename):
-    if not git
+    if not git:
         git = Git()
     if not git.root:
         return None
