@@ -27,12 +27,17 @@ Plugin 'tpope/vim-fugitive'
 " different version somewhere else.
 " Plugin 'ascenator/L9', {'name': 'newL9'}
 "
+Plugin 'tpope/vim-sensible'
+Plugin 'tpope/vim-fugitive'
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 Plugin 'flazz/vim-colorschemes'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'kana/vim-operator-user'
+Plugin 'rhysd/vim-clang-format'
+Plugin 'sheerun/vim-polyglot'
 " Plugin 'vim-syntastic/syntastic'
 
 " All of your Plugins must be added before the following line
@@ -72,14 +77,17 @@ map <Space> \
 
 let g:ycm_confirm_extra_conf=0
 
-au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp tw=79 fo+=t colorcolumn=80
-au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp tw=79 fo+=t colorcolumn=80
-" set cuda header files used in cudarecon to be parsed as cpp files
-au BufReadPost *.cuh set syntax=cpp
+au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.cuh set filetype=cpp
+au BufReadPost,BufFilePre,BufRead *.py set syntax=python
+au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 
+au Filetype cpp set tw=80 fo+=t colorcolumn=81
+au Filetype markdown set tw=79 fo+=t colorcolumn=80
 
-" https://www.reddit.com/r/vim/comments/43sfkm/vim_auto_wrap_long_lines_when_writing/czkwnyb/
-au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown tw=79 fo+=t colorcolumn=80
 highlight ColorColumn ctermbg=235 guibg=#2c2d27
 
 " Apply YCM FixIt
@@ -98,3 +106,13 @@ let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 " In visual mode, don't try to partially comment lines.
 let g:NERDCommentWholeLinesInVMode = 1
+
+let g:clang_format#command = "clang-format-3.8"
+let g:clang_format#detect_style_file = 1
+let g:clang_format#auto_format = 1
+let g:clang_format#auto_format_on_insert_leave = 1
+
+" Map Ctrl-/ to toggle comments in the strangest way possible.
+" https://stackoverflow.com/a/48690620/2465202
+nnoremap <C-_> :call NERDComment("n", "Toggle")<CR>
+vnoremap <C-_> :call NERDComment("n", "Toggle")<CR>gv
