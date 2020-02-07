@@ -1,0 +1,5 @@
+--type-add
+qt:*.{qml,qrc}
+
+--type-add
+qt:qmldir

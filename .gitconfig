@@ -1,18 +1,58 @@
 [user]
 	name = David Freese
-	email = dfreese@stanford.edu
-[push]
-	default = simple
+	email = davidfreese@verbsurgical.com
+[review "ssh://gerrit.verbsurgicaleng.com:29418/"]
+	username = davidfreese
+[color]
+	ui = auto
+[core]
+#   editor = vim
+	excludesfile = /home/dfreese/.gitignore_global
+[diff]
+  tool = meld
+[diff]
+  tool = meld
 [alias]
-    last = log -n1 --decorate
-    # https://stackoverflow.com/a/35075021/2465202
-    graph = log --graph --oneline --decorate --all
-    # https://stackoverflow.com/a/7067489/2465202
-    alias = config --get-regexp ^alias\\.
-    # Basic abbreviations
-    a = add
-    c = commit
-    ca = commit -a
-    cam = commit -am
-    d = diff
-    s = status
+  last = log -n1 --decorate
+  # https://stackoverflow.com/a/35075021/2465202
+  graph = log --graph --oneline --decorate --all
+  # A shorthand version that shows the last twenty commits, which is often what
+  # I want to see anyway.
+  g = log --graph --oneline --decorate --all -n20
+  # https://stackoverflow.com/a/7067489/2465202
+  alias = config --get-regexp ^alias\\.
+  # Basic abbreviations
+  a = add
+  c = commit
+  ca = commit -a
+  cam = commit -am
+  d = diff
+  s = status
+  br = branch -vv
+  ca = commit -am
+  ci = commit
+  co = checkout
+  cob = checkout -b
+  com = checkout master
+  dl = diff --name-only
+  dm = diff master
+  dml = diff master --name-only
+  dt = difftool -d
+  find = log --abbrev-commit --date local --grep
+  last = log -1 HEAD
+  ld = log --pretty=format:"%C(yellow)%h\\ %C(green)%ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short --graph
+  ldd = log --decorate
+  lg = log --abbrev-commit --date local
+  ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+  l = log --first-parent --stat --decorate
+  ls = log --pretty=format:"%C(green)%h\\ %C(yellow)[%ad]%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+  unstage = reset HEAD --
+  us = unstage
+  discard = checkout HEAD --
+  dc = checkout HEAD --
+  upc = checkout @{u}
+  upd = diff @{u}
+  updl = diff @{u} --name-only
+  upm = merge @{u} --no-edit
+  # landed = tag submitted/${2}-${1} ${1}
+  ss = stash show -p stash@{0}

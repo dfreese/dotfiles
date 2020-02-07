@@ -95,13 +95,8 @@ def IsHeaderFile(filename):
     extension = os.path.splitext(filename)[1]
     return extension in HEADER_EXTENSIONS
 
-git = None
-
 def AlternativeTransUnit(filename):
-    if not git:
-        git = Git()
-    if not git.root:
-        return None
+    git = Git()
     base, ext = os.path.splitext(os.path.basename(filename))
 
     # Try and replace the extension of the file first and see if there's
