@@ -21,6 +21,7 @@ call AutoInstallPlug()
 call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-git'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -37,6 +38,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'wesQ3/vim-windowswap'
 Plug 'mhinz/vim-signify'
 Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
+Plug 'jlanzarotta/bufexplorer'
 call plug#end()
 
 " Set space to the leader by mapping space to backslash
@@ -253,10 +255,10 @@ nnoremap <leader>fs :call OpenParentFolder("split")<cr>
 nnoremap <leader>fe :call OpenParentFolder("edit")<cr>
 nnoremap <leader>ft :call OpenParentFolder("tabedit")<cr>
 
-nnoremap <leader>bv :call OpenBuildFile("vsplit")<cr>
-nnoremap <leader>bs :call OpenBuildFile("split")<cr>
-nnoremap <leader>be :call OpenBuildFile("edit")<cr>
-nnoremap <leader>bt :call OpenBuildFile("tabedit")<cr>
+" nnoremap <leader>bv :call OpenBuildFile("vsplit")<cr>
+" nnoremap <leader>bs :call OpenBuildFile("split")<cr>
+" nnoremap <leader>be :call OpenBuildFile("edit")<cr>
+" nnoremap <leader>bt :call OpenBuildFile("tabedit")<cr>
 
 " Set clipboard convinience keybindings
 " https://vi.stackexchange.com/a/96/20229
