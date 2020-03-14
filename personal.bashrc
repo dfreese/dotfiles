@@ -4,8 +4,8 @@ back() {
   cd ${OLDPWD}
 }
 
-export EDITOR="vim"
-alias nv="vim"
+export EDITOR="nvim"
+alias nv="nvim"
 
 # Convinence function to start a fuzzy search in the current repository, or if
 # that fails, the current directory.
