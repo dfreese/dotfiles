@@ -29,7 +29,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'vim-scripts/DoxygenToolkit.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
-Plug 'Valloric/YouCompleteMe'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.sh --clang-completer --rust-completer' }
 Plug 'kana/vim-operator-user'
 Plug 'google/vim-maktaba'
 Plug 'bazelbuild/vim-bazel'
@@ -239,6 +239,12 @@ nnoremap <leader>s :call SkimGitTLD()<CR>
 nnoremap <leader>w <C-w>
 nnoremap <leader>t :tabNext<cr>
 nnoremap <leader>n :noh<CR>
+
+" Add mappings for moving around windows without needing two key combinations
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
 
 " map ctrl-/ to toggle comments in the strangest way possible.
 " https://stackoverflow.com/a/48690620/2465202
