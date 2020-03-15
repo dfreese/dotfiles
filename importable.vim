@@ -41,6 +41,7 @@ Plug 'wesQ3/vim-windowswap'
 Plug 'mhinz/vim-signify'
 Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
 Plug 'jlanzarotta/bufexplorer'
+Plug 'NLKNguyen/papercolor-theme'
 call plug#end()
 
 " Set space to the leader by mapping space to backslash
@@ -53,8 +54,13 @@ set ruler
 set number
 set hlsearch
 set showcmd
-let g:airline_theme='luna'
+" This was the previous theme that I was using.  Leave it here for reference
+" for a while until I'm sure that I'm good with papercolor.
+" let g:airline_theme='luna'
+let g:airline_theme='papercolor'
 " colorscheme desert
+set background=dark
+colorscheme PaperColor
 
 set expandtab       " Expand TABs to spaces
 
