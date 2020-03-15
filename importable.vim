@@ -31,7 +31,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'vim-scripts/DoxygenToolkit.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.sh --clang-completer --rust-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
 Plug 'kana/vim-operator-user'
 Plug 'google/vim-maktaba'
 Plug 'bazelbuild/vim-bazel'
