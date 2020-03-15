@@ -1,3 +1,5 @@
+set nocompatible              " be iMproved, required
+filetype off                  " required
 
 function! PlugLocation()
   if has('nvim')
@@ -52,10 +54,45 @@ set number
 set hlsearch
 set showcmd
 let g:airline_theme='luna'
+" colorscheme desert
 
-" set cursorline
-" highlight CursorLine ctermfg=None ctermbg=233 guifg=fg guibg=None cterm=None
-set path+=$VERB_HOME
+set expandtab       " Expand TABs to spaces
+
+let g:ycm_confirm_extra_conf=0
+let g:ycm_autoclose_preview_window_after_completion=1
+
+" apply ycm fixit
+map <C-p> :YcmCompleter FixIt<cr>
+
+
+set tabstop=2       " The width of a TAB is set to 2.
+                    " Still it is a \t. It is just that
+                    " Vim will interpret it to be having
+                    " a width of 2.
+set shiftwidth=2    " Indents will have a width of 2
+set softtabstop=2   " Sets the number of columns for a TAB
+
+au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.proto set filetype=proto
+" set cuda header files used in cudarecon to be parsed as cpp files
+au BufNewFile,BufFilePre,BufRead *.cuh set filetype=cpp
+au BufNewFile,BufFilePre,BufRead *.py set filetype=python
+au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
+
+au filetype cpp set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
+au filetype rust set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
+au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
+au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
+au filetype markdown set tw=80 fo+=t colorcolumn=81
+
+
+
+" Default to /// for doxygen comments
+let g:DoxygenToolkit_commentType = "C++"
 
 function! ChompedSystem( ... )
   return substitute(call('system', a:000), '\n\+$', '', '')
@@ -203,6 +240,14 @@ function! BazelWorldBuild()
  execute join([":bazel", BazelBuildCmd()], " ")
 endfunction
 
+function! BazelScope(scope)
+ if a:scope == "local"
+   return BazelLocalAll()
+ elseif a:scope == "global"
+   return BazelGlobal()
+ endif
+endfunction
+
 function! BazelGlobal()
  let l:excludes = join([
        \ "//experimental/...",
@@ -239,12 +284,18 @@ nnoremap <leader>s :call SkimGitTLD()<CR>
 nnoremap <leader>w <C-w>
 nnoremap <leader>t :tabNext<cr>
 nnoremap <leader>n :noh<CR>
+" make it so escape gets out of terminal mode, instead of whatever it was for
+" the default.  Like I'll remember that...
+" https://vi.stackexchange.com/a/6966
+if has('nvim')
+  tnoremap <Esc> <C-\><C-n>
+endif
 
 " Add mappings for moving around windows without needing two key combinations
-nnoremap <C-h> <C-w>h
-nnoremap <C-l> <C-w>l
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
+nnoremap <C-h> :wincmd h<cr>
+nnoremap <C-l> :wincmd l<cr>
+nnoremap <C-j> :wincmd j<cr>
+nnoremap <C-k> :wincmd k<cr>
 
 " map ctrl-/ to toggle comments in the strangest way possible.
 " https://stackoverflow.com/a/48690620/2465202
