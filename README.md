@@ -2,12 +2,18 @@
 Personal Configurations of Various Programs
 
 ## Getting Started
-This generally assumes that vim and git are installed.  After installing the dotfiles,
-to install Vundle:
+This generally assumes that nvim and git are installed.
+
+If you haven't installed rust, then go ahead an do:
 
 ```
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-vim +PluginInstall +qall
-pushd $PWD; cd ~/.vim/bundle/YouCompleteMe && python install.py --clang-completer; popd
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+```
+
+Then you can run the following from the git repository:
+```
+cargo run
+nvim +PlugInstall
 
 ```
