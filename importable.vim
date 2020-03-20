@@ -61,6 +61,7 @@ let g:airline_theme='papercolor'
 " colorscheme desert
 set background=dark
 colorscheme PaperColor
+set cursorline
 
 set expandtab       " Expand TABs to spaces
 

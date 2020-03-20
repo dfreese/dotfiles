@@ -119,7 +119,6 @@ nnoremap <leader>ka :call RunBazel("asan", "global")<cr>
 " :hi CursorColumn cterm=NONE ctermbg=darygray ctermfg=white guibg=darkred guifg=white
 " :nnoremap <Leader>c :set cursorline! cursorcolumn!<CR>
 
-set cursorline
 highlight CursorLine ctermfg=None ctermbg=233 guifg=fg guibg=None cterm=None
 
 highlight YcmErrorSection ctermbg=235
