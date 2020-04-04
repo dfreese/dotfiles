@@ -190,7 +190,12 @@ fn main() -> std::io::Result<()> {
     let path = std::env::current_dir()?;
     println!("The current directory is {}", path.display());
 
-    let home_dir_symlinks = vec![".gitconfig", ".clang-format", ".ycm_extra_conf.py"];
+    let home_dir_symlinks = vec![
+        ".gitconfig",
+        ".clang-format",
+        ".tmux.conf",
+        ".ycm_extra_conf.py",
+    ];
     for name in &home_dir_symlinks {
         handle_home_link(&home.join(name), &path.join(name))?;
     }
