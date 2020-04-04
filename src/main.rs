@@ -193,6 +193,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ".gitconfig",
         ".clang-format",
         ".tmux.conf",
+        ".tmuxline.conf",
         ".ycm_extra_conf.py",
     ];
     for name in &home_dir_symlinks {

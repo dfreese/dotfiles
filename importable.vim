@@ -42,9 +42,35 @@ Plug 'mhinz/vim-signify'
 Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
 Plug 'jlanzarotta/bufexplorer'
 Plug 'NLKNguyen/papercolor-theme'
+" This, along with the tmux.conf allow ctrl-h/j/k/l between the different
+" windows seemlessly.
 Plug 'christoomey/vim-tmux-navigator'
+" Used to generate a theme, It can cause some issues with separators, so see
+" g:tmuxline_preset and g:tmuxline_separators below.  A configuration was
+" generated using TmuxlineSnapshot and is source in tmux.conf.  tmuxline still
+" overrides what's there, so things could get out of sync.  An alternative
+" would be to comment out this plugin if we wanted to stop that behavior.
+" Leave it for now, while getting settled.
+" The presets were just taken from the README for this plugin.
 Plug 'edkolev/tmuxline.vim'
 call plug#end()
+
+let g:tmuxline_preset = {
+      \'a'    : '#S',
+      \'b'    : '#W',
+      \'c'    : '#H',
+      \'win'  : '#I #W',
+      \'cwin' : '#I #W',
+      \'x'    : '%a',
+      \'y'    : '#W %R',
+      \'z'    : '#H'}
+
+let g:tmuxline_separators = {
+    \ 'left' : '',
+    \ 'left_alt': '>',
+    \ 'right' : '',
+    \ 'right_alt' : '<',
+    \ 'space' : ' '}
 
 " Set space to the leader by mapping space to backslash
 " https://superuser.com/a/693644/342470
