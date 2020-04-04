@@ -42,6 +42,7 @@ Plug 'mhinz/vim-signify'
 Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
 Plug 'jlanzarotta/bufexplorer'
 Plug 'NLKNguyen/papercolor-theme'
+Plug 'christoomey/vim-tmux-navigator'
 call plug#end()
 
 " Set space to the leader by mapping space to backslash
@@ -297,12 +298,6 @@ nnoremap <leader>n :noh<CR>
 if has('nvim')
   tnoremap <Esc> <C-\><C-n>
 endif
-
-" Add mappings for moving around windows without needing two key combinations
-nnoremap <C-h> :wincmd h<cr>
-nnoremap <C-l> :wincmd l<cr>
-nnoremap <C-j> :wincmd j<cr>
-nnoremap <C-k> :wincmd k<cr>
 
 " map ctrl-/ to toggle comments in the strangest way possible.
 " https://stackoverflow.com/a/48690620/2465202
