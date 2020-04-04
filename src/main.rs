@@ -182,9 +182,8 @@ fn update_vimrc(location: &std::path::PathBuf, target: &std::path::PathBuf) -> s
     Ok(())
 }
 
-fn main() -> std::io::Result<()> {
-    let home_var =
-        std::env::var("HOME").map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let home_var = std::env::var("HOME")?;
     let home = std::path::Path::new(&home_var);
 
     let path = std::env::current_dir()?;
