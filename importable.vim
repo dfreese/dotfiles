@@ -43,6 +43,7 @@ Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
 Plug 'jlanzarotta/bufexplorer'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'edkolev/tmuxline.vim'
 call plug#end()
 
 " Set space to the leader by mapping space to backslash
