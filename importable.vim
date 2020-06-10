@@ -31,7 +31,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'vim-scripts/DoxygenToolkit.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/nerdcommenter'
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
+" Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
 Plug 'kana/vim-operator-user'
 Plug 'google/vim-maktaba'
 Plug 'bazelbuild/vim-bazel'
@@ -117,9 +117,15 @@ au BufNewFile,BufFilePre,BufRead *.cuh set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.py set filetype=python
 au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
+" au BufNewFile,BufFilePre,BufRead BUILD set filetype=bazel
+" au BufNewFile,BufFilePre,BufRead WORKSPACE set filetype=bazel
+" au BufNewFile,BufFilePre,BufRead *.BUILD set filetype=bazel
+" au BufNewFile,BufFilePre,BufRead *.bazel set filetype=bazel
+" au BufNewFile,BufFilePre,BufRead *.bzl set filetype=bazel
 
+au filetype bzl set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype cpp set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
-au filetype rust set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
+au filetype rust set tw=100 fo+=t colorcolumn=101 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
 au filetype markdown set tw=80 fo+=t colorcolumn=81

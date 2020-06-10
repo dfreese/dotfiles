@@ -1,13 +1,12 @@
 [user]
 	name = David Freese
-	email = dvfreese@gmail.com
+	email = freese@verily.com
 [review "ssh://gerrit.verbsurgicaleng.com:29418/"]
 	username = davidfreese
 [color]
 	ui = auto
 [core]
-#   editor = vim
-	excludesfile = /home/dfreese/.gitignore_global
+	excludesfile = ~/dotfiles/global.gitignore
 [diff]
   tool = meld
 [diff]

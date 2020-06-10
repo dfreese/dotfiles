@@ -17,22 +17,24 @@ nf() {
   readonly git_tld
   local file
   if file="$(rg --files ${git_tld} | sk)"; then
-    vim "${file}"
+    "${EDITOR}" "${file}"
   fi
 }
 
 # Convinence function to start nvim with all of the files that currently have
 # a diff.  Any arguments are passed just before the filenames.
 nd() {
-  nvim $@ $(git diff --name-only)
+  "${EDITOR}" $@ $(git diff --name-only)
 }
 
 # Convinence function to start nvim with all of the files that currently have
 # a diff from upstrem.  Any arguments are passed just before the filenames.
 # Very similar to nd.
 ndu() {
-  nvim $@ $(git diff --name-only $(git rev-parse --abbrev-ref --symbolic-full-name @{u}))
+  "${EDITOR}" $@ $(git diff --name-only $(git rev-parse --abbrev-ref --symbolic-full-name @{u}))
 }
+
+source "${HOME}/.cargo/env"
 
 export SKIM_DEFAULT_COMMAND="rg --files"
 export SKIM_DEFAULT_OPTIONS="--reverse --height=7"
