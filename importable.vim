@@ -53,7 +53,11 @@ Plug 'christoomey/vim-tmux-navigator'
 " Leave it for now, while getting settled.
 " The presets were just taken from the README for this plugin.
 Plug 'edkolev/tmuxline.vim'
+Plug 'google/vim-glaive'
+Plug 'google/vim-codefmt'
 call plug#end()
+
+call glaive#Install()
 
 let g:tmuxline_preset = {
       \'a'    : '#S',
@@ -356,3 +360,16 @@ nnoremap <leader>ft :call OpenParentFolder("tabedit")<cr>
 " https://vi.stackexchange.com/a/96/20229
 noremap <Leader>y "+y
 noremap <Leader>p "+p
+
+augroup autoformat_settings
+  autocmd FileType bzl AutoFormatBuffer buildifier
+  autocmd FileType go AutoFormatBuffer gofmt
+  autocmd FileType rust AutoFormatBuffer rustfmt
+  autocmd FileType cpp AutoFormatBuffer clang-format
+augroup END
+
+function! RustFmtOptions()
+  return ["--edition=2018"]
+endfunction
+
+Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
