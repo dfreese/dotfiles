@@ -17,3 +17,10 @@ cargo run
 nvim +PlugInstall
 
 ```
+
+
+Also, make sure to add in the tmux plugin manager
+([tpm](https://github.com/tmux-plugins/tpm))
+```
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
