@@ -16,7 +16,7 @@ nf() {
   fi
   readonly git_tld
   local file
-  if file="$(rg --files ${git_tld} | sed 's@'"${git_tld}"'/@@' | sk)"; then
+  if file="$(rg --color=always --files ${git_tld} | sed 's@'"${git_tld}"'/@@' | sk)"; then
     "${EDITOR}" "${git_tld}/${file}"
   fi
 }
@@ -37,7 +37,7 @@ ndu() {
 source "${HOME}/.cargo/env"
 
 export SKIM_DEFAULT_COMMAND="rg --files"
-export SKIM_DEFAULT_OPTIONS="--reverse --height=7"
+export SKIM_DEFAULT_OPTIONS="--reverse --height=7 --ansi --color=dark"
 export PATH="${PATH}:${HOME}/.skim/bin"
 
 export RIPGREP_CONFIG_PATH="${HOME}/dotfiles/ripgrep.rc"
