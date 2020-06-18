@@ -16,8 +16,8 @@ nf() {
   fi
   readonly git_tld
   local file
-  if file="$(rg --files ${git_tld} | sk)"; then
-    "${EDITOR}" "${file}"
+  if file="$(rg --files ${git_tld} | sed 's@'"${git_tld}"'/@@' | sk)"; then
+    "${EDITOR}" "${git_tld}/${file}"
   fi
 }
 
