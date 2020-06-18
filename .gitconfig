@@ -55,3 +55,5 @@
   upm = merge @{u} --no-edit
   # landed = tag submitted/${2}-${1} ${1}
   ss = stash show -p stash@{0}
+[http]
+	cookiefile = ~/.gitcookies
