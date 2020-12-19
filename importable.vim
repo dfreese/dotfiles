@@ -29,8 +29,8 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
 Plug 'vim-scripts/DoxygenToolkit.vim'
-Plug 'scrooloose/nerdtree'
-Plug 'scrooloose/nerdcommenter'
+Plug 'preservim/nerdtree'
+Plug 'preservim/nerdcommenter'
 " Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
 Plug 'kana/vim-operator-user'
 Plug 'google/vim-maktaba'
@@ -40,7 +40,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'wesQ3/vim-windowswap'
 Plug 'mhinz/vim-signify'
 Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
-Plug 'jlanzarotta/bufexplorer'
+" Plug 'jlanzarotta/bufexplorer'
 Plug 'NLKNguyen/papercolor-theme'
 " This, along with the tmux.conf allow ctrl-h/j/k/l between the different
 " windows seemlessly.
@@ -351,10 +351,10 @@ nnoremap <leader>fs :call OpenParentFolder("split")<cr>
 nnoremap <leader>fe :call OpenParentFolder("edit")<cr>
 nnoremap <leader>ft :call OpenParentFolder("tabedit")<cr>
 
-" nnoremap <leader>bv :call OpenBuildFile("vsplit")<cr>
-" nnoremap <leader>bs :call OpenBuildFile("split")<cr>
-" nnoremap <leader>be :call OpenBuildFile("edit")<cr>
-" nnoremap <leader>bt :call OpenBuildFile("tabedit")<cr>
+nnoremap <leader>bv :call OpenBuildFile("vsplit")<cr>
+nnoremap <leader>bs :call OpenBuildFile("split")<cr>
+nnoremap <leader>be :call OpenBuildFile("edit")<cr>
+nnoremap <leader>bt :call OpenBuildFile("tabedit")<cr>
 
 " Set clipboard convinience keybindings
 " https://vi.stackexchange.com/a/96/20229
@@ -366,6 +366,7 @@ augroup autoformat_settings
   autocmd FileType go AutoFormatBuffer gofmt
   autocmd FileType rust AutoFormatBuffer rustfmt
   autocmd FileType cpp AutoFormatBuffer clang-format
+  autocmd FileType proto AutoFormatBuffer clang-format
 augroup END
 
 function! RustFmtOptions()
@@ -373,3 +374,100 @@ function! RustFmtOptions()
 endfunction
 
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
+Glaive codefmt plugin[mappings] clang_format_style="Google"
+
+
+
+function! BazelBuildQuery(scope)
+ let l:rdep = join(["rdeps(", a:scope, ", ", BazelPath(), ")"], "")
+ let l:kinds = "(qt5_|linux_|)cc_(library|binary|test|inc_library|proto_library)"
+ let l:kind = join(["kind(\"", l:kinds, "\", ", l:rdep, ")"], "")
+ let l:query = join(["bazel query '", l:kind, "'"], "")
+ return l:query
+endfunction
+
+function! BazelTestQuery(scope)
+ let l:query = join(["tests(rdeps(", a:scope, ", ", BazelPath(), "))"], "")
+ return join(["bazel query '", l:query, "'"], "")
+endfunction
+
+function! ShellWrap(cmd)
+ return join(["$(", a:cmd, ")"], "")
+endfunction
+
+function! BazelOnBuild(cmd, scope)
+ return join(
+       \["bazel", a:cmd, ShellWrap(BazelBuildQuery(a:scope))],
+       \" ")
+endfunction
+
+function! BazelOnTest(cmd, scope)
+ return join(
+       \["bazel", a:cmd, ShellWrap(BazelTestQuery(a:scope))],
+       \" ")
+endfunction
+
+function! ClosePreviewWindowOnGoodExit(job_id, data, event)
+ if a:event == 'exit' && a:data == 0
+   noautocmd wincmd z
+ elseif a:event == 'exit' && a:data != 0
+   noautocmd wincmd P
+   noautocmd 30wincmd +
+   noautocmd wincmd p
+ endif
+endfunction
+
+function! RunCommandInPreviewTerminal(cmd)
+ " close the window, if it's open
+ noautocmd wincmd z
+ " and open it again.
+ rightbelow pedit +enew
+ noautocmd wincmd p
+ call termopen(a:cmd, {'on_exit': 'ClosePreviewWindowOnGoodExit'})
+ noautocmd wincmd p
+endfunction
+
+function! RunBazel(cmd, scope)
+ if !InWorkspace()
+   echo "not in bazel workspace"
+   return
+ endif
+ let l:opts = ""
+ if !has('nvim')
+   let l:opts = l:opts." --color=no --curses=no"
+ endif
+ let l:opts = ""
+ let l:scope = BazelScope(a:scope)
+ if a:cmd == "build"
+   let l:cmd = "build".l:opts
+   let l:full_cmd = BazelOnBuild(l:cmd, l:scope)
+   if has('nvim')
+     call RunCommandInPreviewTerminal(l:full_cmd)
+   else
+     call s:executeinshell(l:full_cmd)
+   endif
+ elseif a:cmd == "test" || a:cmd == "asan"
+   let l:test_args = " --test_summary=terse --test_output=errors"
+   if a:cmd == "asan"
+     let l:test_args = " --config=asan".l:test_args
+   endif
+   let l:cmd = "test".l:opts.l:test_args
+   let l:full_cmd = BazelOnTest(l:cmd, l:scope)
+   if has('nvim')
+     call RunCommandInPreviewTerminal(l:full_cmd)
+   else
+     call s:executeinshell(l:full_cmd)
+   endif
+ endif
+endfunction
+
+nnoremap <leader>lb :call RunBazel("build", "local")<cr>
+nnoremap <leader>lt :call RunBazel("test", "local")<cr>
+nnoremap <leader>la :call RunBazel("asan", "local")<cr>
+nnoremap <leader>kb :call RunBazel("build", "global")<cr>
+nnoremap <leader>kt :call RunBazel("test", "global")<cr>
+nnoremap <leader>ka :call RunBazel("asan", "global")<cr>
+
+" Force Doxygen triple comments to the front of comments for C/C++ files.
+autocmd Filetype c,cpp set comments^=:///
+
