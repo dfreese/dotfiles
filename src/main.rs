@@ -1,16 +1,25 @@
 extern crate chrono;
 
-enum FileType {
+enum FileType<'a> {
     // The file to which it links
     Link(std::path::PathBuf),
     File,
     DoesntExist,
+    ParentDoesntExist(&'a std::path::Path),
     Other,
 }
 
 fn filetype(filename: &std::path::Path) -> FileType {
     if !filename.exists() {
-        return FileType::DoesntExist;
+        if let Some(parent) = filename.parent() {
+            if parent.exists() {
+                return FileType::DoesntExist;
+            } else {
+                return FileType::ParentDoesntExist(parent);
+            }
+        } else {
+            return FileType::DoesntExist;
+        }
     }
     if !filename.is_file() {
         return FileType::Other;
@@ -114,6 +123,13 @@ fn handle_home_link(
                 std::os::unix::fs::symlink(target, location)?;
             }
         }
+        FileType::ParentDoesntExist(parent) => {
+            println!(
+                "Trying to handle {} as link in the home directory, but the parent of {} doesn't exist",
+                location.display(),
+                parent.display()
+            );
+        }
         FileType::Other => {
             println!(
                 "No clue how to handle whatever exists at {}. Good luck",
@@ -172,6 +188,17 @@ fn update_vimrc(location: &std::path::PathBuf, target: &std::path::PathBuf) -> s
                 buffer.write_all(vim_source_line_with_timestamp(&target).as_bytes())?;
             }
         }
+        FileType::ParentDoesntExist(parent) => {
+            let prompt = format!(
+                "Trying to create {}, but the folder {} doesn't exist.  Create it recursively?",
+                location.display(),
+                parent.display()
+            );
+            if confirm(prompt)? {
+                std::fs::create_dir_all(parent)?;
+                update_vimrc(location, target)?;
+            }
+        }
         FileType::Other => {
             println!(
                 "No clue how to handle whatever exists at {}. Good luck",
@@ -201,6 +228,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     update_vimrc(&home.join(".vimrc"), &path.join("importable.vim"))?;
+    update_vimrc(&home.join(".config/nvim/init.vim"), &home.join(".vimrc"))?;
 
     // TODO(dfreese): add handling for personal.bashrc
     // would require different handling of profile, bash_profile, and bashrc
