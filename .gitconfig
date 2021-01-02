@@ -1,14 +1,10 @@
 [user]
-	name = David Freese
-	email = freese@verily.com
-[review "ssh://gerrit.verbsurgicaleng.com:29418/"]
-	username = davidfreese
+  name = David Freese
+  email = freese@verily.com
 [color]
-	ui = auto
+  ui = auto
 [core]
-	excludesfile = ~/dotfiles/global.gitignore
-[diff]
-  tool = meld
+  excludesfile = ~/dotfiles/global.gitignore
 [diff]
   tool = meld
 [alias]
@@ -56,9 +52,9 @@
   # landed = tag submitted/${2}-${1} ${1}
   ss = stash show -p stash@{0}
 [http]
-	cookiefile = ~/.gitcookies
+  cookiefile = ~/.gitcookies
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
