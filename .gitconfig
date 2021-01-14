@@ -49,6 +49,7 @@
   upd = diff @{u}
   updl = diff @{u} --name-only
   upm = merge @{u} --no-edit
+  yolo = push --force-with-lease origin HEAD
 [http]
   cookiefile = ~/.gitcookies
 [filter "lfs"]
