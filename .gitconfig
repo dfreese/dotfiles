@@ -39,6 +39,7 @@
   rs = rebase --skip
   rc = rebase --continue
   redo = commit --amend --no-edit
+  refresh = fetch --all --prune
   s = status
   ss = stash show -p stash@{0}
   uncommit = reset --soft HEAD~1
