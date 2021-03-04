@@ -229,6 +229,16 @@ function! AddPairHeader()
  return append(0, l:header)
 endfunction
 
+function! AddNamespace(namespace)
+  let l:startline = line("'<")
+  let l:endline = line("'>")
+  let l:header = "namespace " . a:namespace . " {"
+  let l:footer= "} //  " . a:namespace
+
+  let l:failed = append(l:endline, [l:footer])
+  let l:failed = append(l:startline, [l:header])
+endfunction
+
 function! FileExists(file)
   " https://stackoverflow.com/a/23496813
   return !empty(glob(a:file))
@@ -380,7 +390,7 @@ Glaive codefmt plugin[mappings] clang_format_style="Google"
 
 function! BazelBuildQuery(scope)
  let l:rdep = join(["rdeps(", a:scope, ", ", BazelPath(), ")"], "")
- let l:kinds = "(qt5_|linux_|)cc_(library|binary|test|inc_library|proto_library)"
+ let l:kinds = "(qt5_|linux_|)(rust|cc)_(library|binary|test|inc_library|proto_library)"
  let l:kind = join(["kind(\"", l:kinds, "\", ", l:rdep, ")"], "")
  let l:query = join(["bazel query '", l:kind, "'"], "")
  return l:query
