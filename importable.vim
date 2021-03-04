@@ -1,5 +1,6 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
+set splitright
 
 function! PlugLocation()
   if has('nvim')
