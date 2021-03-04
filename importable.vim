@@ -431,7 +431,14 @@ function! RunCommandInPreviewTerminal(cmd)
  " close the window, if it's open
  noautocmd wincmd z
  " and open it again.
- rightbelow pedit +enew
+ if winnr('$') == '1'
+   " If this is the only window in this tab, open the window on the right,
+   " taking up half of the space.
+   vertical rightbelow pedit +enew
+   noautocmd wincmd =
+ else
+   rightbelow pedit +enew
+ endif
  noautocmd wincmd p
  call termopen(a:cmd, {'on_exit': 'ClosePreviewWindowOnGoodExit'})
  noautocmd wincmd p
