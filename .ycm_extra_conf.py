@@ -12,7 +12,7 @@ taken from https://jonasdevlieghere.com/a-better-youcompleteme-config/ which
 sets up ycm to look for compile_commands.json in build directories outside of
 where the files are specifically.
 
-This might have more information on how to handle macOS specifc system 
+This might have more information on how to handle macOS specifc system
 includes that are currently hacked into FlagsForSystem().
 
 http://bastian.rieck.ru/blog/posts/2015/ycm_cmake/
@@ -95,8 +95,13 @@ def IsHeaderFile(filename):
     extension = os.path.splitext(filename)[1]
     return extension in HEADER_EXTENSIONS
 
+git = None
+
 def AlternativeTransUnit(filename):
-    git = Git()
+    if not git:
+        git = Git()
+    if not git.root:
+        return None
     base, ext = os.path.splitext(os.path.basename(filename))
 
     # Try and replace the extension of the file first and see if there's
@@ -198,6 +203,8 @@ def FlagsForSystem():
     https://stackoverflow.com/a/27838745/2465202
     https://stackoverflow.com/a/11946295/2465202
     '''
+    global xcode_base
+    global xcode_flags
     if platform.system() == 'Darwin':
         if xcode_base is None:
             xcode_base = subprocess.check_output("xcode-select -p".split()).splitlines()[0]
