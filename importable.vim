@@ -32,7 +32,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'vim-scripts/DoxygenToolkit.vim'
 Plug 'preservim/nerdtree'
 Plug 'preservim/nerdcommenter'
-" Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
 Plug 'kana/vim-operator-user'
 Plug 'google/vim-maktaba'
 Plug 'bazelbuild/vim-bazel'
@@ -221,6 +221,13 @@ function! AddHeaderGuards()
   let l:failed = append(line('$'), ["", "#endif  // " . l:macro])
 endfunction
 
+function! UpdateHeaderGuards()
+  let l:macro = HeaderGuardMacro()
+  let l:failed = setline(1, "#ifndef " . l:macro)
+  let l:failed = setline(2, "#define " . l:macro)
+  let l:failed = setline(line('$'), "#endif  // " . l:macro)
+endfunction
+
 function! AddPairHeader()
  let l:header = expand("%:p:r") . ".h"
  " remove the the workspace path and its associated slash
@@ -228,6 +235,15 @@ function! AddPairHeader()
  let l:header = "#include \"" . l:header
  let l:header = l:header . "\""
  return append(0, l:header)
+endfunction
+
+function! UpdatePairHeader()
+ let l:header = expand("%:p:r") . ".h"
+ " remove the the workspace path and its associated slash
+ let l:header = substitute(l:header, Workspace() . "/", "", "")
+ let l:header = "#include \"" . l:header
+ let l:header = l:header . "\""
+ return setline(1, l:header)
 endfunction
 
 function! AddNamespace(namespace)
@@ -305,11 +321,12 @@ function! BazelScope(scope)
 endfunction
 
 function! BazelGlobal()
- let l:excludes = join([
-       \ "//experimental/...",
-       \ "//third_party/google/protobuf/...",
-       \], " ")
- return join(["//... - set(", l:excludes, ")"], "")
+ " let l:excludes = join([
+ "       \ "//experimental/...",
+ "       \ "//third_party/google/protobuf/...",
+ "       \], " ")
+ " return join(["//... - set(", l:excludes, ")"], "")
+ return "//..."
 endfunction
 
 
