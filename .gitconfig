@@ -20,6 +20,9 @@
   cob = checkout -b
   com = checkout master
   d = diff
+  # Diffs a branch from the point it branches from its upstream.  This was
+  # inferred from https://stackoverflow.com/a/62617192
+  db = diff @{u}...
   dc = checkout HEAD --
   discard = checkout HEAD --
   dl = diff --name-only
