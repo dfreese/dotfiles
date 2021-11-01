@@ -117,8 +117,6 @@ au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.proto set filetype=proto
-" set cuda header files used in cudarecon to be parsed as cpp files
-au BufNewFile,BufFilePre,BufRead *.cuh set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.py set filetype=python
 au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
@@ -130,6 +128,7 @@ au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
 
 au filetype bzl set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype cpp set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
+au filetype cuda set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
 au filetype rust set tw=100 fo+=t colorcolumn=101 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
@@ -394,6 +393,7 @@ augroup autoformat_settings
   autocmd FileType go AutoFormatBuffer gofmt
   autocmd FileType rust AutoFormatBuffer rustfmt
   autocmd FileType cpp AutoFormatBuffer clang-format
+  autocmd FileType cuda AutoFormatBuffer clang-format
   autocmd FileType proto AutoFormatBuffer clang-format
 augroup END
 
