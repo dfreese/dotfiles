@@ -365,8 +365,8 @@ endif
 
 " map ctrl-/ to toggle comments in the strangest way possible.
 " https://stackoverflow.com/a/48690620/2465202
-nnoremap <c-_> :call NERDComment("n", "toggle")<cr>
-vnoremap <c-_> :call NERDComment("n", "toggle")<cr>
+nnoremap <c-_> :call nerdcommenter#Comment("n", "toggle")<cr>
+vnoremap <c-_> :call nerdcommenter#Comment("n", "toggle")<cr>
 
 nnoremap <leader>hv :call OpenPair("vsplit")<cr>
 nnoremap <leader>hs :call OpenPair("split")<cr>
