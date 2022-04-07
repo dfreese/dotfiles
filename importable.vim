@@ -128,6 +128,7 @@ au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
 
 au filetype bzl set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype cpp set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
+au filetype qml set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
 au filetype cuda set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
 au filetype rust set tw=100 fo+=t colorcolumn=101 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
