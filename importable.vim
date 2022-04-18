@@ -396,6 +396,7 @@ augroup autoformat_settings
   autocmd FileType cpp AutoFormatBuffer clang-format
   autocmd FileType cuda AutoFormatBuffer clang-format
   autocmd FileType proto AutoFormatBuffer clang-format
+  autocmd FileType python AutoFormatBuffer yapf
 augroup END
 
 function! RustFmtOptions()
