@@ -30,10 +30,17 @@
   dml = diff master --name-only
   find = log --abbrev-commit --date local --grep
   # A shorthand version that shows the last twenty commits, which is often what
-  # I want to see anyway.
-  g = log --graph --oneline --decorate --all -n20
+  # I want to see anyway.  Limit to local branches and origin/HEAD since --all
+  # gets really messy when there are lots of PRs out.
+  g = log --graph --oneline --decorate --branches origin/HEAD -n20
   # https://stackoverflow.com/a/35075021/2465202
   graph = log --graph --oneline --decorate --all
+  # I would really like this to be "hd = diff origin/HEAD..." however, that adds
+  # a space which breaks up the `...`.  It looks like git diff --merge-base will
+  # work for this, but that requires 2.30 and ubuntu 20.04 is on 2.25. :/
+  # https://stackoverflow.com/questions/71906559
+  # TODO(freese): switch to `hd = diff --merge-base origin/HEAD`.
+  hd = "!git diff origin/HEAD...$@"
   last = log -n1 --decorate
   ld = log --pretty=format:"%C(yellow)%h\\ %C(green)%ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short --graph
   ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
