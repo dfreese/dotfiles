@@ -2,9 +2,9 @@
 Personal Configurations of Various Programs
 
 ## Background
-Install NeoVim, typically:
+Install NeoVim and dependencies for YCM, typically:
 ```shell
-sudo apt-get install neovim
+sudo apt-get install neovim python3-dev cmake
 ```
 
 Generate a ssh key for github or similar, based on [github's article](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
