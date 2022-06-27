@@ -3,17 +3,35 @@
 export EDITOR="nvim"
 alias nv="nvim"
 
-# Convinence function to start a fuzzy search in the current repository, or if
-# that fails, the current directory.
-nf() {
+src_tld() {
   local git_tld
   if ! git_tld=`git rev-parse --show-toplevel --quiet 2>/dev/null`; then
     git_tld="."
   fi
   readonly git_tld
-  local file
-  if file="$(rg --color=always --files ${git_tld} | sed 's@'"${git_tld}"'/@@' | sk)"; then
-    "${EDITOR}" "${git_tld}/${file}"
+  echo "${git_tld}"
+}
+
+src_search_paths() {
+  local tld
+  tld="$(src_tld)"
+  readonly tld
+
+  echo "${tld}"
+}
+
+skim_src() {
+  local -a files
+  files=( $(src_search_paths "${tld}") )
+  readonly files
+  rg --color=always --files "${files[@]}" | sk-tmux
+}
+
+# Convinence function to start a fuzzy search in the current repository, or if
+# that fails, the current directory.
+nf() {
+  if file="$(skim_src)"; then
+    "${EDITOR}" "${file}"
   fi
 }
 
