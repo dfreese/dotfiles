@@ -13,25 +13,29 @@ src_tld() {
 }
 
 src_search_paths() {
-  local tld
-  tld="$(src_tld)"
-  readonly tld
-
+  local -r tld=$1
   echo "${tld}"
 }
 
-skim_src() {
+src_search_files() {
+  local -r tld=$1
+
   local -a files
   files=( $(src_search_paths "${tld}") )
   readonly files
-  rg --color=always --files "${files[@]}" | sk-tmux
+
+  ( cd "${tld}" && rg --color=always --files "${files[@]}")
 }
 
 # Convinence function to start a fuzzy search in the current repository, or if
 # that fails, the current directory.
 nf() {
-  if file="$(skim_src)"; then
-    "${EDITOR}" "${file}"
+  local tld
+  tld=$(src_tld)
+  readonly tld
+
+  if file="$(src_search_files "${tld}" | sk-tmux)"; then
+    "${EDITOR}" "${tld}/${file}"
   fi
 }
 
