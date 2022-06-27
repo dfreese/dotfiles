@@ -13,17 +13,23 @@ src_tld() {
 }
 
 src_search_paths() {
-  local tld
-  tld="$(src_tld)"
-  readonly tld
+  local -r tld=$1
 
   if [[ "${PWD}" = "/google/src"* ]]; then
     for path in ${G3_SEARCH_PATHS[@]}; do
-      echo "${tld}/${path}"
+      echo "${path}"
     done
-  else
-    echo "${tld}"
   fi
+}
+
+src_search_files() {
+  local -r tld=$1
+
+  local -a files
+  files=( $(src_search_paths) )
+  readonly files
+
+  ( cd "${tld}" && rg --color=always --files "${files[@]}")
 }
 
 skim_src() {
@@ -36,8 +42,12 @@ skim_src() {
 # Convinence function to start a fuzzy search in the current repository, or if
 # that fails, the current directory.
 nf() {
-  if file="$(skim_src)"; then
-    "${EDITOR}" "${file}"
+  local tld
+  tld=$(src_tld)
+  readonly tld
+
+  if file="$(src_search_files "${tld}" | sk-tmux)"; then
+    "${EDITOR}" "${tld}/${file}"
   fi
 }
 
