@@ -1,9 +1,5 @@
 #!/bin/bash
 
-back() {
-  cd ${OLDPWD}
-}
-
 export EDITOR="nvim"
 alias nv="nvim"
 
