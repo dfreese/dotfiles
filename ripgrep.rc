@@ -4,4 +4,7 @@ qt:*.{qml,qrc}
 --type-add
 qt:qmldir
 
+--type-add
+pbtxt:*.pbtxt
+
 --hidden
