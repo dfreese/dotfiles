@@ -144,7 +144,7 @@ function! ChompedSystem( ... )
   return substitute(call('system', a:000), '\n\+$', '', '')
 endfunction
 
-function! GitTLD()
+function! GitTld()
   let l:parent = expand('%:h')
   let l:cmd = "git -C " . l:parent . " rev-parse --show-toplevel"
   let l:output = ChompedSystem(l:cmd)
@@ -155,7 +155,7 @@ function! GitTLD()
 endfunction
 
 function! SkimGitTLD()
-  execute "SK " . GitTLD()
+  execute "SK " . GitTld()
 endfunction
 
 
