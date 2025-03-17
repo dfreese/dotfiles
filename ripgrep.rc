@@ -5,6 +5,9 @@ qt:*.{qml,qrc}
 qt:qmldir
 
 --type-add
-pbtxt:*.pbtxt
+pbtxt:*.{pbtxt,textproto}
+
+--type-add
+textproto:*.{pbtxt,textproto}
 
 --hidden
