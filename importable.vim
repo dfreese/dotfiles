@@ -384,11 +384,6 @@ nnoremap <leader>bs :call OpenBuildFile("split")<cr>
 nnoremap <leader>be :call OpenBuildFile("edit")<cr>
 nnoremap <leader>bt :call OpenBuildFile("tabedit")<cr>
 
-" Set clipboard convinience keybindings
-" https://vi.stackexchange.com/a/96/20229
-noremap <Leader>y "+y
-noremap <Leader>p "+p
-
 augroup autoformat_settings
   autocmd FileType bzl AutoFormatBuffer buildifier
   autocmd FileType go AutoFormatBuffer gofmt
