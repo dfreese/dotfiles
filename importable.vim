@@ -35,7 +35,6 @@ Plug 'preservim/nerdcommenter'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
 Plug 'kana/vim-operator-user'
 Plug 'google/vim-maktaba'
-Plug 'bazelbuild/vim-bazel'
 Plug 'bazelbuild/vim-ft-bzl'
 Plug 'sheerun/vim-polyglot'
 Plug 'wesQ3/vim-windowswap'
@@ -140,14 +139,6 @@ au filetype markdown set tw=80 fo+=t colorcolumn=81
 " Default to /// for doxygen comments
 let g:DoxygenToolkit_commentType = "C++"
 
-function! GitTld()
-  return SearchUpTree(".git")
-endfunction
-
-function! SkimGitTLD()
-  execute "SK " . GitTld()
-endfunction
-
 function! PotentialHeaderSourcePair()
  let l:filebase = expand("%:p:r")
  let l:fileext = expand("%:e")
@@ -191,7 +182,7 @@ endfunction
 function! HeaderGuardMacro()
  let l:macro = expand("%:p")
  " remove the the workspace path and its associated slash
- let l:macro = substitute(l:macro, GitTld() . "/", "", "")
+ let l:macro = substitute(l:macro, ProjectRoot() . "/", "", "")
  " replace all of the folder slashes with underscores
  let l:macro = substitute(l:macro, "/", "_", "g")
  " and replace the last file extension period with an underscore, but make sure
@@ -288,33 +279,16 @@ function! BazelPath()
  return join([BazelParent(), l:filename], ":")
 endfunction
 
-function! BazelLocalAll()
- return join([BazelParent(), "all"], ":")
-endfunction
-
-function! BazelBuildCmd()
- let l:target = BazelPath()
- return join(["build", BazelPath()], " ")
-endfunction
-
-function! BazelWorldBuild()
- execute join([":bazel", BazelBuildCmd()], " ")
-endfunction
-
-function! BazelScope(scope)
- if a:scope == "local"
-   return BazelLocalAll()
- elseif a:scope == "global"
-   return BazelGlobal()
- endif
-endfunction
-
-function! BazelGlobal()
-  let l:excludes = get(g:, 'bazel_global_excludes', [])
-  if len(l:excludes) > 0
-    return "//... - set(" . join(l:excludes, " ") . ")"
+function! BazelTargetsForScope(scope)
+  if a:scope == "local"
+    return join([BazelParent(), "all"], ":")
+  elseif a:scope == "global"
+    let l:excludes = get(g:, 'bazel_global_excludes', [])
+    if len(l:excludes) > 0
+      return "//... - set(" . join(l:excludes, " ") . ")"
+    endif
+  return "//..."
   endif
- return "//..."
 endfunction
 
 let g:bazel_global_excludes = []
@@ -346,7 +320,7 @@ let g:skim_action= {
       \}
 
 
-nnoremap <leader>s :call SkimGitTLD()<CR>
+nnoremap <leader>s :execute "SK " . ProjectRoot()<CR>
 
 " Add a leader shortcut because key combination was finiky
 nnoremap <leader>w <C-w>
@@ -464,7 +438,7 @@ function! RunBazel(cmd, scope)
    let l:opts = l:opts." --color=no --curses=no"
  endif
  let l:opts = ""
- let l:scope = BazelScope(a:scope)
+ let l:scope = BazelTargetsForScope(a:scope)
  if a:cmd == "build"
    let l:cmd = "build".l:opts
    let l:full_cmd = BazelOnBuild(l:cmd, l:scope)
