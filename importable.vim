@@ -321,14 +321,17 @@ function! BazelScope(scope)
 endfunction
 
 function! BazelGlobal()
- " let l:excludes = join([
- "       \ "//experimental/...",
- "       \ "//third_party/google/protobuf/...",
- "       \], " ")
- " return join(["//... - set(", l:excludes, ")"], "")
+  let l:excludes = get(g:, 'bazel_global_excludes', [])
+  if len(l:excludes) > 0
+    return "//... - set(" . join(l:excludes, " ") . ")"
+  endif
  return "//..."
 endfunction
 
+let g:bazel_global_excludes = [
+  " \ "//experimental/...",
+  " \ "//third_party/google/protobuf/...",
+]
 
 " add spaces after comment delimiters by default
 let g:NERDSpaceDelims = 1
