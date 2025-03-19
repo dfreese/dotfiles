@@ -202,7 +202,7 @@ endfunction
 function! HeaderGuardMacro()
  let l:macro = expand("%:p")
  " remove the the workspace path and its associated slash
- let l:macro = substitute(l:macro, GitTLD() . "/", "", "")
+ let l:macro = substitute(l:macro, GitTld() . "/", "", "")
  " replace all of the folder slashes with underscores
  let l:macro = substitute(l:macro, "/", "_", "g")
  " and replace the last file extension period with an underscore, but make sure
@@ -276,7 +276,7 @@ function! Workspace()
     return l:workspace
   endif
   " just return the git tld if we're not in a bazel workspace
-  let l:git = GitTLD()
+  let l:git = GitTld()
   if !empty(l:git)
     return l:git
   endif
