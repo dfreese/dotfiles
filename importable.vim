@@ -168,16 +168,8 @@ function! PotentialHeaderSourcePair()
  return join([l:filebase, l:suggested], ".")
 endfunction
 
-function! OpenPair(cmd)
- let l:pair = PotentialHeaderSourcePair()
- let l:cmd = join([a:cmd, l:pair], " ")
- execute l:cmd
-endfunction
-
-function! OpenParentFolder(cmd)
- let l:parent = expand("%:p:h")
- let l:cmd = join([a:cmd, l:parent], " ")
- execute l:cmd
+function! ParentFolder()
+ return expand("%:p:h")
 endfunction
 
 function! GetBuildFile()
@@ -337,20 +329,20 @@ endif
 nnoremap <c-_> :call nerdcommenter#Comment("n", "toggle")<cr>
 vnoremap <c-_> :call nerdcommenter#Comment("n", "toggle")<cr>
 
-nnoremap <leader>hv :call OpenPair("vsplit")<cr>
-nnoremap <leader>hs :call OpenPair("split")<cr>
-nnoremap <leader>he :call OpenPair("edit")<cr>
-nnoremap <leader>ht :call OpenPair("tabnew")<cr>
+nnoremap <leader>hv :execute "vsplit " . PotentialHeaderSourcePair()<cr>
+nnoremap <leader>hs :execute "split " . PotentialHeaderSourcePair()<cr>
+nnoremap <leader>he :execute "edit " . PotentialHeaderSourcePair()<cr>
+nnoremap <leader>ht :execute "tabedit " . PotentialHeaderSourcePair()<cr>
 
-nnoremap <leader>fv :call OpenParentFolder("vsplit")<cr>
-nnoremap <leader>fs :call OpenParentFolder("split")<cr>
-nnoremap <leader>fe :call OpenParentFolder("edit")<cr>
-nnoremap <leader>ft :call OpenParentFolder("tabedit")<cr>
+nnoremap <leader>fv :execute "vsplit " . ParentFolder()<cr>
+nnoremap <leader>fs :execute "split " . ParentFolder()<cr>
+nnoremap <leader>fe :execute "edit " . ParentFolder()<cr>
+nnoremap <leader>ft :execute "tabedit " . ParentFolder()<cr>
 
-nnoremap <leader>bv :call OpenBuildFile("vsplit")<cr>
-nnoremap <leader>bs :call OpenBuildFile("split")<cr>
-nnoremap <leader>be :call OpenBuildFile("edit")<cr>
-nnoremap <leader>bt :call OpenBuildFile("tabedit")<cr>
+nnoremap <leader>bv :execute "vsplit " . SearchUpTree("BUILD")<cr>
+nnoremap <leader>bs :execute "split " . SearchUpTree("BUILD")<cr>
+nnoremap <leader>be :execute "edit " . SearchUpTree("BUILD")<cr>
+nnoremap <leader>bt :execute "tabedit " . SearchUpTree("BUILD")<cr>
 
 augroup autoformat_settings
   autocmd FileType bzl AutoFormatBuffer buildifier
