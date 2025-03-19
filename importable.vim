@@ -300,7 +300,7 @@ function! BazelPath()
 endfunction
 
 function! BazelLocalAll()
- return join([BazelParent(), "*"], ":")
+ return join([BazelParent(), "all"], ":")
 endfunction
 
 function! BazelBuildCmd()
