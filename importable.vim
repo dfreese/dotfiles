@@ -50,7 +50,6 @@ Plug 'tpope/vim-git'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
-Plug 'vim-scripts/DoxygenToolkit.vim'
 Plug 'preservim/nerdtree'
 Plug 'preservim/nerdcommenter'
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --rust-completer' }
@@ -61,7 +60,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'wesQ3/vim-windowswap'
 Plug 'mhinz/vim-signify'
 Plug 'lotabout/skim', { 'dir': '~/.skim', 'do': './install' }
-" Plug 'jlanzarotta/bufexplorer'
 Plug 'NLKNguyen/papercolor-theme'
 " This, along with the tmux.conf allow ctrl-h/j/k/l between the different
 " windows seemlessly.
