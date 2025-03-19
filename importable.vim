@@ -141,11 +141,7 @@ au filetype markdown set tw=80 fo+=t colorcolumn=81
 let g:DoxygenToolkit_commentType = "C++"
 
 function! GitTld()
-  let l:workspace = SearchUpTree(".git")
-  if l:workspace != '/'
-    return l:workspace
-  endif
-  return ""
+  return SearchUpTree(".git")
 endfunction
 
 function! SkimGitTLD()
@@ -174,7 +170,7 @@ endfunction
 
 function! GetBuildFile()
  let l:package = system("bazel query --output=package ".expand("%"))
- let l:fullpackage = join([Workspace(), l:package], "/")
+ let l:fullpackage = join([ProjectRoot(), l:package], "/")
  return substitute(l:fullpackage, "\n$", "/BUILD", "")
 endfunction
 
@@ -224,7 +220,7 @@ endfunction
 function! AddPairHeader()
  let l:header = expand("%:p:r") . ".h"
  " remove the the workspace path and its associated slash
- let l:header = substitute(l:header, Workspace() . "/", "", "")
+ let l:header = substitute(l:header, ProjectRoot() . "/", "", "")
  let l:header = "#include \"" . l:header
  let l:header = l:header . "\""
  return append(0, l:header)
@@ -233,7 +229,7 @@ endfunction
 function! UpdatePairHeader()
  let l:header = expand("%:p:r") . ".h"
  " remove the the workspace path and its associated slash
- let l:header = substitute(l:header, Workspace() . "/", "", "")
+ let l:header = substitute(l:header, ProjectRoot() . "/", "", "")
  let l:header = "#include \"" . l:header
  let l:header = l:header . "\""
  return setline(1, l:header)
@@ -268,28 +264,23 @@ function! SearchUpTree(file)
   return SearchUpTreeImpl(expand("%:p:h"), a:file)
 endfunction
 
-function! Workspace()
-  let l:workspace = SearchUpTree("WORKSPACE")
-  if !empty(l:workspace)
-    return l:workspace
-  endif
-  " just return the git tld if we're not in a bazel workspace
-  let l:git = GitTld()
-  if !empty(l:git)
-    return l:git
-  endif
-  " not in a bazel workspace or git directory, just return the current dir.
-  " This function doesn't really have a meaning in that case.
-  return l:parent
+function! ProjectRoot()
+  for l:dir in get(g:, 'project_root_indicators', [])
+    let l:root = SearchUpTree(l:dir)
+    if !empty(l:root)
+      return l:root
+    endif
+  endfor
+  return expand("%:p:h")
 endfunction
 
 function! InWorkspace()
- return expand("%:p") =~ "^".Workspace()
+ return !empty(SearchUpTree("WORKSPACE"))
 endfunction
 
 function! BazelParent()
  let l:parent = expand("%:p:h")
- return substitute(l:parent, Workspace(), "/", "")
+ return substitute(l:parent, ProjectRoot(), "/", "")
 endfunction
 
 function! BazelPath()
@@ -327,6 +318,11 @@ function! BazelGlobal()
 endfunction
 
 let g:bazel_global_excludes = []
+let g:project_root_indicators = [
+      \ ".git",
+      \ "WORKSPACE",
+      \ "Cargo.toml",
+      \]
 
 " add spaces after comment delimiters by default
 let g:NERDSpaceDelims = 1
