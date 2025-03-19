@@ -140,24 +140,17 @@ au filetype markdown set tw=80 fo+=t colorcolumn=81
 " Default to /// for doxygen comments
 let g:DoxygenToolkit_commentType = "C++"
 
-function! ChompedSystem( ... )
-  return substitute(call('system', a:000), '\n\+$', '', '')
-endfunction
-
 function! GitTld()
-  let l:parent = expand('%:h')
-  let l:cmd = "git -C " . l:parent . " rev-parse --show-toplevel"
-  let l:output = ChompedSystem(l:cmd)
-  if v:shell_error != 0
-    return ""
+  let l:workspace = SearchUpTree(".git")
+  if l:workspace != '/'
+    return l:workspace
   endif
-  return l:output
+  return ""
 endfunction
 
 function! SkimGitTLD()
   execute "SK " . GitTld()
 endfunction
-
 
 function! PotentialHeaderSourcePair()
  let l:filebase = expand("%:p:r")
@@ -261,18 +254,23 @@ function! FileExists(file)
   return !empty(glob(a:file))
 endfunction
 
-function! WorkspaceInternal(dir)
-  let l:parent = fnamemodify(a:dir, ':h')
-  if l:parent == '/' || FileExists(l:parent . '/' . 'WORKSPACE')
-    return l:parent
+function! SearchUpTreeImpl(dir, file)
+  if a:dir == '/'
+    return ""
   endif
-  return WorkspaceInternal(l:parent)
+  if FileExists(a:dir . '/' . a:file)
+    return a:dir
+  endif
+  return SearchUpTreeImpl(fnamemodify(a:dir, ':h'), a:file)
+endfunction
+
+function! SearchUpTree(file)
+  return SearchUpTreeImpl(expand("%:p:h"), a:file)
 endfunction
 
 function! Workspace()
-  let l:parent = expand("%:p:h")
-  let l:workspace = WorkspaceInternal(l:parent)
-  if l:workspace != '/'
+  let l:workspace = SearchUpTree("WORKSPACE")
+  if !empty(l:workspace)
     return l:workspace
   endif
   " just return the git tld if we're not in a bazel workspace
