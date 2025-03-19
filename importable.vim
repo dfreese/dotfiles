@@ -2,6 +2,25 @@ set nocompatible              " be iMproved, required
 filetype off                  " required
 set splitright
 
+function! FileExists(file)
+  " https://stackoverflow.com/a/23496813
+  return !empty(glob(a:file))
+endfunction
+
+function! SearchUpTreeImpl(dir, file)
+  if a:dir == '/'
+    return ""
+  endif
+  if FileExists(a:dir . '/' . a:file)
+    return a:dir
+  endif
+  return SearchUpTreeImpl(fnamemodify(a:dir, ':h'), a:file)
+endfunction
+
+function! SearchUpTree(file)
+  return SearchUpTreeImpl(expand("%:p:h"), a:file)
+endfunction
+
 function! PlugLocation()
   if has('nvim')
     return '~/.local/share/nvim/site/autoload/plug.vim'
@@ -12,11 +31,12 @@ endfunction
 
 function! AutoInstallPlug()
   let l:plug_location = PlugLocation()
-  if empty(glob(l:plug_location))
-    silent execute join(['!curl -fLo', l:plug_location,
-          \ '--create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'], ' ')
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  if FileExists(l:plug_location)
+    return
   endif
+  silent execute join(['!curl -fLo', l:plug_location,
+        \ '--create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'], ' ')
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endfunction
 
 call AutoInstallPlug()
@@ -234,25 +254,6 @@ function! AddNamespace(namespace)
 
   let l:failed = append(l:endline, [l:footer])
   let l:failed = append(l:startline, [l:header])
-endfunction
-
-function! FileExists(file)
-  " https://stackoverflow.com/a/23496813
-  return !empty(glob(a:file))
-endfunction
-
-function! SearchUpTreeImpl(dir, file)
-  if a:dir == '/'
-    return ""
-  endif
-  if FileExists(a:dir . '/' . a:file)
-    return a:dir
-  endif
-  return SearchUpTreeImpl(fnamemodify(a:dir, ':h'), a:file)
-endfunction
-
-function! SearchUpTree(file)
-  return SearchUpTreeImpl(expand("%:p:h"), a:file)
 endfunction
 
 function! ProjectRoot()
