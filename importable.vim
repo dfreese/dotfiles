@@ -348,7 +348,8 @@ let g:skim_action= {
       \ 'ctrl-e': 'edit',
       \ 'ctrl-t': 'tab split',
       \ 'ctrl-x': 'split',
-      \ 'ctrl-v': 'vsplit' }
+      \ 'ctrl-v': 'vsplit',
+      \}
 
 
 nnoremap <leader>s :call SkimGitTLD()<CR>
