@@ -1,6 +1,7 @@
 set nocompatible              " be iMproved, required
 filetype off                  " required
 set splitright
+set mouse=
 
 function! FileExists(file)
   " https://stackoverflow.com/a/23496813
