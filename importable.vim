@@ -193,11 +193,8 @@ function! OpenBuildFile(cmd)
  " goes.
  " old version:
  let l:parent = expand("%:p:h")
- let l:build= join([l:parent, "BUILD"], "/")
- " new version:
- " let l:build = GetBuildFile()
- let l:cmd = join([a:cmd, l:build], " ")
- execute l:cmd
+ let l:build = SearchUpTree("BUILD")
+ execute l:cmd . l:build
 endfunction
 
 function! HeaderGuardMacro()
