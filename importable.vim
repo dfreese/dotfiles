@@ -328,10 +328,7 @@ function! BazelGlobal()
  return "//..."
 endfunction
 
-let g:bazel_global_excludes = [
-  " \ "//experimental/...",
-  " \ "//third_party/google/protobuf/...",
-]
+let g:bazel_global_excludes = []
 
 " add spaces after comment delimiters by default
 let g:NERDSpaceDelims = 1
