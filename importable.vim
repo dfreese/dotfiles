@@ -153,11 +153,6 @@ au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtab
 au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
 au filetype markdown set tw=80 fo+=t colorcolumn=81
 
-
-
-" Default to /// for doxygen comments
-let g:DoxygenToolkit_commentType = "C++"
-
 function! PotentialHeaderSourcePair()
  let l:filebase = expand("%:p:r")
  let l:fileext = expand("%:e")
@@ -168,23 +163,6 @@ endfunction
 
 function! ParentFolder()
  return expand("%:p:h")
-endfunction
-
-function! GetBuildFile()
- let l:package = system("bazel query --output=package ".expand("%"))
- let l:fullpackage = join([ProjectRoot(), l:package], "/")
- return substitute(l:fullpackage, "\n$", "/BUILD", "")
-endfunction
-
-function! OpenBuildFile(cmd)
- " maybe replace with something like
- " $(bazel query main.cc -output=package):build
- " once i can figure out how the relative versus absolute filename convention
- " goes.
- " old version:
- let l:parent = expand("%:p:h")
- let l:build = SearchUpTree("BUILD")
- execute l:cmd . l:build
 endfunction
 
 function! HeaderGuardMacro()
@@ -255,7 +233,7 @@ function! ProjectRoot()
 endfunction
 
 function! InWorkspace()
- return !empty(SearchUpTree("WORKSPACE"))
+ return !empty(SearchUpTree("WORKSPACE")) || !empty(SearchUpTree("MODULE.bazel"))
 endfunction
 
 function! BazelParent()
@@ -265,26 +243,41 @@ endfunction
 
 function! BazelPath()
  let l:filename = expand("%:t")
- return join([BazelParent(), l:filename], ":")
+ return BazelParent() . ":" . l:filename
 endfunction
 
 function! BazelTargetsForScope(scope)
-  if a:scope == "local"
+  if a:scope == "target" || a:scope == "package"
     return join([BazelParent(), "all"], ":")
   elseif a:scope == "global"
     let l:excludes = get(g:, 'bazel_global_excludes', [])
     if len(l:excludes) > 0
       return "//... - set(" . join(l:excludes, " ") . ")"
     endif
-  return "//..."
+    return "//..."
+  endif
+endfunction
+
+function! BazelDepthForScope(scope)
+  if a:scope == "target"
+    return 1
+  elseif a:scope == "package"
+    return 2
+  elseif a:scope == "global"
+    return -1
   endif
 endfunction
 
 let g:bazel_global_excludes = []
+let g:bazel_workspace_indicators = [
+      \ "MODULE.bazel",
+      \ "WORKSPACE",
+      \]
 let g:project_root_indicators = [
-      \ ".git",
+      \ "MODULE.bazel",
       \ "WORKSPACE",
       \ "Cargo.toml",
+      \ ".git",
       \]
 
 " add spaces after comment delimiters by default
@@ -359,35 +352,26 @@ endfunction
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
 Glaive codefmt plugin[mappings] clang_format_style="Google"
 
-
-
-function! BazelBuildQuery(scope)
- let l:rdep = join(["rdeps(", a:scope, ", ", BazelPath(), ")"], "")
- let l:kinds = "(qt5_|linux_|)(rust|cc)_(library|binary|test|inc_library|proto_library)"
- let l:kind = join(["kind(\"", l:kinds, "\", ", l:rdep, ")"], "")
- let l:query = join(["bazel query '", l:kind, "'"], "")
- return l:query
+function! BazelBuildQuery(universe, depth)
+  let l:depth = a:depth < 0 ? "" : ", " . a:depth
+  return "bazel query 'rdeps(" . a:universe . ", " . BazelPath() . l:depth . ")'"
 endfunction
 
-function! BazelTestQuery(scope)
- let l:query = join(["tests(rdeps(", a:scope, ", ", BazelPath(), "))"], "")
- return join(["bazel query '", l:query, "'"], "")
+function! BazelTestQuery(universe, depth)
+  let l:depth = a:depth < 0 ? "" : ", " . a:depth
+  return "bazel query 'tests(rdeps(" . a:universe . ", " . BazelPath() . l:depth . "))'"
 endfunction
 
 function! ShellWrap(cmd)
  return join(["$(", a:cmd, ")"], "")
 endfunction
 
-function! BazelOnBuild(cmd, scope)
- return join(
-       \["bazel", a:cmd, ShellWrap(BazelBuildQuery(a:scope))],
-       \" ")
+function! BazelOnBuild(cmd, scope, depth)
+ return "cd " . ProjectRoot() . " && " . BazelBuildQuery(a:scope, a:depth) . " | xargs bazel " . a:cmd
 endfunction
 
-function! BazelOnTest(cmd, scope)
- return join(
-       \["bazel", a:cmd, ShellWrap(BazelTestQuery(a:scope))],
-       \" ")
+function! BazelOnTest(cmd, scope, depth)
+ return "cd " . ProjectRoot() . " && " . BazelTestQuery(a:scope, a:depth) . " | xargs bazel " . a:cmd
 endfunction
 
 function! ClosePreviewWindowOnGoodExit(job_id, data, event)
@@ -427,22 +411,20 @@ function! RunBazel(cmd, scope)
    let l:opts = l:opts." --color=no --curses=no"
  endif
  let l:opts = ""
- let l:scope = BazelTargetsForScope(a:scope)
+ let l:universe = BazelTargetsForScope(a:scope)
+ let l:depth = BazelDepthForScope(a:scope)
  if a:cmd == "build"
    let l:cmd = "build".l:opts
-   let l:full_cmd = BazelOnBuild(l:cmd, l:scope)
+   let l:full_cmd = BazelOnBuild(l:cmd, l:universe, l:depth)
    if has('nvim')
      call RunCommandInPreviewTerminal(l:full_cmd)
    else
      call s:executeinshell(l:full_cmd)
    endif
- elseif a:cmd == "test" || a:cmd == "asan"
+ elseif a:cmd == "test"
    let l:test_args = " --test_summary=terse --test_output=errors"
-   if a:cmd == "asan"
-     let l:test_args = " --config=asan".l:test_args
-   endif
    let l:cmd = "test".l:opts.l:test_args
-   let l:full_cmd = BazelOnTest(l:cmd, l:scope)
+   let l:full_cmd = BazelOnTest(l:cmd, l:universe, l:depth)
    if has('nvim')
      call RunCommandInPreviewTerminal(l:full_cmd)
    else
@@ -451,12 +433,10 @@ function! RunBazel(cmd, scope)
  endif
 endfunction
 
-nnoremap <leader>lb :call RunBazel("build", "local")<cr>
-nnoremap <leader>lt :call RunBazel("test", "local")<cr>
-nnoremap <leader>la :call RunBazel("asan", "local")<cr>
-nnoremap <leader>kb :call RunBazel("build", "global")<cr>
-nnoremap <leader>kt :call RunBazel("test", "global")<cr>
-nnoremap <leader>ka :call RunBazel("asan", "global")<cr>
+nnoremap <leader>lb :call RunBazel("build", "target")<cr>
+nnoremap <leader>lt :call RunBazel("test", "target")<cr>
+nnoremap <leader>kb :call RunBazel("build", "package")<cr>
+nnoremap <leader>kt :call RunBazel("test", "package")<cr>
 
 " Force Doxygen triple comments to the front of comments for C/C++ files.
 autocmd Filetype c,cpp set comments^=:///
