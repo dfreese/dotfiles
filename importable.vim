@@ -344,6 +344,7 @@ function! RustFmtOptions()
   return ["--edition=2018"]
 endfunction
 
+Glaive codefmt plugin[mappings] gofmt_executable="goimports"
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
 Glaive codefmt plugin[mappings] clang_format_style="Google"
 
