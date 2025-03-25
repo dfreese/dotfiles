@@ -130,6 +130,8 @@ set tabstop=2       " The width of a TAB is set to 2.
                     " a width of 2.
 set shiftwidth=2    " Indents will have a width of 2
 set softtabstop=2   " Sets the number of columns for a TAB
+set expandtab       " Expand TABs to spaces
+set splitright
 
 au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
@@ -147,7 +149,9 @@ au filetype cuda set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabst
 au filetype rust set tw=100 fo+=t colorcolumn=101 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
 au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
+au filetype hgcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
 au filetype markdown set tw=80 fo+=t colorcolumn=81
+au filetype go set tw=0 fo+=t colorcolumn=81 noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
 
 function! PotentialHeaderSourcePair()
  let l:filebase = expand("%:p:r")
