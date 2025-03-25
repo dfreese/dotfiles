@@ -357,10 +357,6 @@ function! BazelTestQuery(universe, depth)
   return "bazel query 'tests(rdeps(" . a:universe . ", " . BazelPath() . l:depth . "))'"
 endfunction
 
-function! ShellWrap(cmd)
- return join(["$(", a:cmd, ")"], "")
-endfunction
-
 function! BazelOnBuild(cmd, scope, depth)
  return "cd " . ProjectRoot() . " && " . BazelBuildQuery(a:scope, a:depth) . " | xargs bazel " . a:cmd
 endfunction
