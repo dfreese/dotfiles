@@ -74,6 +74,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'edkolev/tmuxline.vim'
 Plug 'google/vim-glaive'
 Plug 'google/vim-codefmt'
+Plug 'rust-lang/rust.vim'
 call plug#end()
 
 call glaive#Install()
