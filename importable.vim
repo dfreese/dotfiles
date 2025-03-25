@@ -264,6 +264,10 @@ function! BazelDepthForScope(scope)
   endif
 endfunction
 
+function! SkimTarget()
+  return ProjectRoot()
+endfunction
+
 let g:bazel_global_excludes = []
 let g:bazel_workspace_indicators = [
       \ "MODULE.bazel",
@@ -298,7 +302,7 @@ let g:skim_action= {
       \}
 
 
-nnoremap <leader>s :execute "SK " . ProjectRoot()<CR>
+nnoremap <leader>s :execute "SK " . SkimTarget()<CR>
 
 " Add a leader shortcut because key combination was finiky
 nnoremap <leader>w <C-w>
