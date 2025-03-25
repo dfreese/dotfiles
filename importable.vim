@@ -347,22 +347,26 @@ endfunction
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
 Glaive codefmt plugin[mappings] clang_format_style="Google"
 
+function! BazelBinary()
+  return "bazel"
+endfunction
+
 function! BazelBuildQuery(universe, depth)
   let l:depth = a:depth < 0 ? "" : ", " . a:depth
-  return "bazel query 'rdeps(" . a:universe . ", " . BazelPath() . l:depth . ")'"
+  return BazelBinary() . " query 'rdeps(" . a:universe . ", " . BazelPath() . l:depth . ")'"
 endfunction
 
 function! BazelTestQuery(universe, depth)
   let l:depth = a:depth < 0 ? "" : ", " . a:depth
-  return "bazel query 'tests(rdeps(" . a:universe . ", " . BazelPath() . l:depth . "))'"
+  return BazelBinary() . " query 'tests(rdeps(" . a:universe . ", " . BazelPath() . l:depth . "))'"
 endfunction
 
 function! BazelOnBuild(cmd, scope, depth)
- return "cd " . ProjectRoot() . " && " . BazelBuildQuery(a:scope, a:depth) . " | xargs bazel " . a:cmd
+ return "cd " . ProjectRoot() . " && " . BazelBuildQuery(a:scope, a:depth) . " | xargs " . BazelBinary() . " " . a:cmd
 endfunction
 
 function! BazelOnTest(cmd, scope, depth)
- return "cd " . ProjectRoot() . " && " . BazelTestQuery(a:scope, a:depth) . " | xargs bazel " . a:cmd
+ return "cd " . ProjectRoot() . " && " . BazelTestQuery(a:scope, a:depth) . " | xargs " . BazelBinary() . " " . a:cmd
 endfunction
 
 function! ClosePreviewWindowOnGoodExit(job_id, data, event)
