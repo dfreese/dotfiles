@@ -347,6 +347,12 @@ augroup autoformat_settings
   au FileType python AutoFormatBuffer yapf
 augroup END
 
+augroup comment_customization
+  au!
+  " Force Doxygen triple comments to the front of comments for C/C++ files.
+  au filetype c,cpp set comments^=:///
+augroup END
+
 
 let g:airline_theme='papercolor'
 let g:tmuxline_preset = {
@@ -439,9 +445,6 @@ nnoremap <leader>lb :call RunBazel("build", "target")<cr>
 nnoremap <leader>lt :call RunBazel("test", "target")<cr>
 nnoremap <leader>kb :call RunBazel("build", "package")<cr>
 nnoremap <leader>kt :call RunBazel("test", "package")<cr>
-
-" Force Doxygen triple comments to the front of comments for C/C++ files.
-autocmd Filetype c,cpp set comments^=:///
 
 filetype plugin indent on
 syntax on
