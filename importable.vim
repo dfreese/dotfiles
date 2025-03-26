@@ -283,29 +283,6 @@ Glaive codefmt plugin[mappings] gofmt_executable="goimports"
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
 Glaive codefmt plugin[mappings] clang_format_style="Google"
 
-" Set space to the leader by mapping space to backslash
-" https://superuser.com/a/693644/342470
-let mapleader="\\"
-map <Space> \
-
-set ruler
-set number
-set hlsearch
-set showcmd
-set background=dark
-colorscheme PaperColor " desert is a good fallback for standard vim
-set cursorline
-set splitright
-set mouse=
-
-set tabstop=2       " The width of a TAB is set to 2.
-                    " Still it is a \t. It is just that
-                    " Vim will interpret it to be having
-                    " a width of 2.
-set shiftwidth=2    " Indents will have a width of 2
-set softtabstop=2   " Sets the number of columns for a TAB
-set expandtab       " Expand TABs to spaces
-
 " These are likely all covered by filetype plugins, but have kept them around
 " for historical reasons.
 augroup filetypes
@@ -445,6 +422,29 @@ nnoremap <leader>lb :call RunBazel("build", "target")<cr>
 nnoremap <leader>lt :call RunBazel("test", "target")<cr>
 nnoremap <leader>kb :call RunBazel("build", "package")<cr>
 nnoremap <leader>kt :call RunBazel("test", "package")<cr>
+
+" Set space to the leader by mapping space to backslash
+" https://superuser.com/a/693644/342470
+let mapleader="\\"
+map <Space> \
+
+set ruler
+set number
+set hlsearch
+set showcmd
+set background=dark
+colorscheme PaperColor " desert is a good fallback for standard vim
+set cursorline
+set splitright
+set mouse=
+
+set tabstop=2       " The width of a TAB is set to 2.
+                    " Still it is a \t. It is just that
+                    " Vim will interpret it to be having
+                    " a width of 2.
+set shiftwidth=2    " Indents will have a width of 2
+set softtabstop=2   " Sets the number of columns for a TAB
+set expandtab       " Expand TABs to spaces
 
 filetype plugin indent on
 syntax on
