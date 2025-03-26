@@ -22,6 +22,210 @@ function! SearchUpTree(file)
   return SearchUpTreeImpl(expand("%:p:h"), a:file)
 endfunction
 
+function! RustFmtOptions()
+  return ["--edition=2018"]
+endfunction
+
+function! PotentialHeaderSourcePair()
+ let l:filebase = expand("%:p:r")
+ let l:fileext = expand("%:e")
+ let l:ext_pair = {"h": "cc", "cc": "h"}
+ let l:suggested = get(ext_pair, l:fileext, l:fileext)
+ return join([l:filebase, l:suggested], ".")
+endfunction
+
+function! ParentFolder()
+ return expand("%:p:h")
+endfunction
+
+function! HeaderGuardMacro()
+ let l:macro = expand("%:p")
+ " remove the the workspace path and its associated slash
+ let l:macro = substitute(l:macro, ProjectRoot() . "/", "", "")
+ " replace all of the folder slashes with underscores
+ let l:macro = substitute(l:macro, "/", "_", "g")
+ " and replace the last file extension period with an underscore, but make sure
+ " to escape it.  Otherwise, vim thinks it's a wildcard.j
+ let l:macro = substitute(l:macro, "\\.", "_", "g")
+ " add the trailing underscore
+ let l:macro = l:macro . "_"
+ " and switch it all to uppercase
+ let l:macro = toupper(l:macro)
+ return l:macro
+endfunction
+
+function! AddHeaderGuards()
+  let l:macro = HeaderGuardMacro()
+  let l:failed = append(0, ["#ifndef " . l:macro, "#define " . l:macro, ""])
+  let l:failed = append(line('$'), ["", "#endif  // " . l:macro])
+endfunction
+
+function! UpdateHeaderGuards()
+  let l:macro = HeaderGuardMacro()
+  let l:failed = setline(1, "#ifndef " . l:macro)
+  let l:failed = setline(2, "#define " . l:macro)
+  let l:failed = setline(line('$'), "#endif  // " . l:macro)
+endfunction
+
+function! AddPairHeader()
+ let l:header = expand("%:p:r") . ".h"
+ " remove the the workspace path and its associated slash
+ let l:header = substitute(l:header, ProjectRoot() . "/", "", "")
+ let l:header = "#include \"" . l:header
+ let l:header = l:header . "\""
+ return append(0, l:header)
+endfunction
+
+function! UpdatePairHeader()
+ let l:header = expand("%:p:r") . ".h"
+ " remove the the workspace path and its associated slash
+ let l:header = substitute(l:header, ProjectRoot() . "/", "", "")
+ let l:header = "#include \"" . l:header
+ let l:header = l:header . "\""
+ return setline(1, l:header)
+endfunction
+
+function! AddNamespace(namespace)
+  let l:startline = line("'<")
+  let l:endline = line("'>")
+  let l:header = "namespace " . a:namespace . " {"
+  let l:footer= "} //  " . a:namespace
+
+  let l:failed = append(l:endline, [l:footer])
+  let l:failed = append(l:startline, [l:header])
+endfunction
+
+function! ProjectRoot()
+  for l:dir in get(g:, 'project_root_indicators', [])
+    let l:root = SearchUpTree(l:dir)
+    if !empty(l:root)
+      return l:root
+    endif
+  endfor
+  return expand("%:p:h")
+endfunction
+
+function! InWorkspace()
+ return !empty(SearchUpTree("WORKSPACE")) || !empty(SearchUpTree("MODULE.bazel"))
+endfunction
+
+function! BazelParent()
+ let l:parent = expand("%:p:h")
+ return substitute(l:parent, ProjectRoot(), "/", "")
+endfunction
+
+function! BazelPath()
+ let l:filename = expand("%:t")
+ return BazelParent() . ":" . l:filename
+endfunction
+
+function! BazelTargetsForScope(scope)
+  if a:scope == "target" || a:scope == "package"
+    return join([BazelParent(), "all"], ":")
+  elseif a:scope == "global"
+    let l:excludes = get(g:, 'bazel_global_excludes', [])
+    if len(l:excludes) > 0
+      return "//... - set(" . join(l:excludes, " ") . ")"
+    endif
+    return "//..."
+  endif
+endfunction
+
+function! BazelDepthForScope(scope)
+  if a:scope == "target"
+    return 1
+  elseif a:scope == "package"
+    return 2
+  elseif a:scope == "global"
+    return -1
+  endif
+endfunction
+
+function! SkimTarget()
+  return ProjectRoot()
+endfunction
+
+function! BazelBinary()
+  return "bazel"
+endfunction
+
+function! BazelBuildQuery(universe, depth)
+  let l:depth = a:depth < 0 ? "" : ", " . a:depth
+  return BazelBinary() . " query 'rdeps(" . a:universe . ", " . BazelPath() . l:depth . ")'"
+endfunction
+
+function! BazelTestQuery(universe, depth)
+  let l:depth = a:depth < 0 ? "" : ", " . a:depth
+  return BazelBinary() . " query 'tests(rdeps(" . a:universe . ", " . BazelPath() . l:depth . "))'"
+endfunction
+
+function! BazelOnBuild(cmd, scope, depth)
+ return "cd " . ProjectRoot() . " && " . BazelBuildQuery(a:scope, a:depth) . " | xargs " . BazelBinary() . " " . a:cmd
+endfunction
+
+function! BazelOnTest(cmd, scope, depth)
+ return "cd " . ProjectRoot() . " && " . BazelTestQuery(a:scope, a:depth) . " | xargs " . BazelBinary() . " " . a:cmd
+endfunction
+
+function! ClosePreviewWindowOnGoodExit(job_id, data, event)
+ if a:event == 'exit' && a:data == 0
+   noautocmd wincmd z
+ elseif a:event == 'exit' && a:data != 0
+   noautocmd wincmd P
+   noautocmd 30wincmd +
+   noautocmd wincmd p
+ endif
+endfunction
+
+function! RunCommandInPreviewTerminal(cmd)
+ " close the window, if it's open
+ noautocmd wincmd z
+ " and open it again.
+ if winnr('$') == '1'
+   " If this is the only window in this tab, open the window on the right,
+   " taking up half of the space.
+   vertical rightbelow pedit +enew
+   noautocmd wincmd =
+ else
+   rightbelow pedit +enew
+ endif
+ noautocmd wincmd p
+ call termopen(a:cmd, {'on_exit': 'ClosePreviewWindowOnGoodExit'})
+ noautocmd wincmd p
+endfunction
+
+function! RunBazel(cmd, scope)
+ if !InWorkspace()
+   echo "not in bazel workspace"
+   return
+ endif
+ let l:opts = ""
+ if !has('nvim')
+   let l:opts = l:opts." --color=no --curses=no"
+ endif
+ let l:opts = ""
+ let l:universe = BazelTargetsForScope(a:scope)
+ let l:depth = BazelDepthForScope(a:scope)
+ if a:cmd == "build"
+   let l:cmd = "build".l:opts
+   let l:full_cmd = BazelOnBuild(l:cmd, l:universe, l:depth)
+   if has('nvim')
+     call RunCommandInPreviewTerminal(l:full_cmd)
+   else
+     call s:executeinshell(l:full_cmd)
+   endif
+ elseif a:cmd == "test"
+   let l:test_args = " --test_summary=terse --test_output=errors"
+   let l:cmd = "test".l:opts.l:test_args
+   let l:full_cmd = BazelOnTest(l:cmd, l:universe, l:depth)
+   if has('nvim')
+     call RunCommandInPreviewTerminal(l:full_cmd)
+   else
+     call s:executeinshell(l:full_cmd)
+   endif
+ endif
+endfunction
+
 function! PlugLocation()
   if has('nvim')
     return '~/.local/share/nvim/site/autoload/plug.vim'
@@ -159,125 +363,6 @@ augroup tab_and_width_settings
   au filetype go set tw=0 fo+=t colorcolumn=81 noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
 augroup END
 
-function! PotentialHeaderSourcePair()
- let l:filebase = expand("%:p:r")
- let l:fileext = expand("%:e")
- let l:ext_pair = {"h": "cc", "cc": "h"}
- let l:suggested = get(ext_pair, l:fileext, l:fileext)
- return join([l:filebase, l:suggested], ".")
-endfunction
-
-function! ParentFolder()
- return expand("%:p:h")
-endfunction
-
-function! HeaderGuardMacro()
- let l:macro = expand("%:p")
- " remove the the workspace path and its associated slash
- let l:macro = substitute(l:macro, ProjectRoot() . "/", "", "")
- " replace all of the folder slashes with underscores
- let l:macro = substitute(l:macro, "/", "_", "g")
- " and replace the last file extension period with an underscore, but make sure
- " to escape it.  Otherwise, vim thinks it's a wildcard.j
- let l:macro = substitute(l:macro, "\\.", "_", "g")
- " add the trailing underscore
- let l:macro = l:macro . "_"
- " and switch it all to uppercase
- let l:macro = toupper(l:macro)
- return l:macro
-endfunction
-
-function! AddHeaderGuards()
-  let l:macro = HeaderGuardMacro()
-  let l:failed = append(0, ["#ifndef " . l:macro, "#define " . l:macro, ""])
-  let l:failed = append(line('$'), ["", "#endif  // " . l:macro])
-endfunction
-
-function! UpdateHeaderGuards()
-  let l:macro = HeaderGuardMacro()
-  let l:failed = setline(1, "#ifndef " . l:macro)
-  let l:failed = setline(2, "#define " . l:macro)
-  let l:failed = setline(line('$'), "#endif  // " . l:macro)
-endfunction
-
-function! AddPairHeader()
- let l:header = expand("%:p:r") . ".h"
- " remove the the workspace path and its associated slash
- let l:header = substitute(l:header, ProjectRoot() . "/", "", "")
- let l:header = "#include \"" . l:header
- let l:header = l:header . "\""
- return append(0, l:header)
-endfunction
-
-function! UpdatePairHeader()
- let l:header = expand("%:p:r") . ".h"
- " remove the the workspace path and its associated slash
- let l:header = substitute(l:header, ProjectRoot() . "/", "", "")
- let l:header = "#include \"" . l:header
- let l:header = l:header . "\""
- return setline(1, l:header)
-endfunction
-
-function! AddNamespace(namespace)
-  let l:startline = line("'<")
-  let l:endline = line("'>")
-  let l:header = "namespace " . a:namespace . " {"
-  let l:footer= "} //  " . a:namespace
-
-  let l:failed = append(l:endline, [l:footer])
-  let l:failed = append(l:startline, [l:header])
-endfunction
-
-function! ProjectRoot()
-  for l:dir in get(g:, 'project_root_indicators', [])
-    let l:root = SearchUpTree(l:dir)
-    if !empty(l:root)
-      return l:root
-    endif
-  endfor
-  return expand("%:p:h")
-endfunction
-
-function! InWorkspace()
- return !empty(SearchUpTree("WORKSPACE")) || !empty(SearchUpTree("MODULE.bazel"))
-endfunction
-
-function! BazelParent()
- let l:parent = expand("%:p:h")
- return substitute(l:parent, ProjectRoot(), "/", "")
-endfunction
-
-function! BazelPath()
- let l:filename = expand("%:t")
- return BazelParent() . ":" . l:filename
-endfunction
-
-function! BazelTargetsForScope(scope)
-  if a:scope == "target" || a:scope == "package"
-    return join([BazelParent(), "all"], ":")
-  elseif a:scope == "global"
-    let l:excludes = get(g:, 'bazel_global_excludes', [])
-    if len(l:excludes) > 0
-      return "//... - set(" . join(l:excludes, " ") . ")"
-    endif
-    return "//..."
-  endif
-endfunction
-
-function! BazelDepthForScope(scope)
-  if a:scope == "target"
-    return 1
-  elseif a:scope == "package"
-    return 2
-  elseif a:scope == "global"
-    return -1
-  endif
-endfunction
-
-function! SkimTarget()
-  return ProjectRoot()
-endfunction
-
 let g:bazel_global_excludes = []
 let g:bazel_workspace_indicators = [
       \ "MODULE.bazel",
@@ -356,94 +441,9 @@ augroup autoformat_settings
   au FileType python AutoFormatBuffer yapf
 augroup END
 
-function! RustFmtOptions()
-  return ["--edition=2018"]
-endfunction
-
 Glaive codefmt plugin[mappings] gofmt_executable="goimports"
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
 Glaive codefmt plugin[mappings] clang_format_style="Google"
-
-function! BazelBinary()
-  return "bazel"
-endfunction
-
-function! BazelBuildQuery(universe, depth)
-  let l:depth = a:depth < 0 ? "" : ", " . a:depth
-  return BazelBinary() . " query 'rdeps(" . a:universe . ", " . BazelPath() . l:depth . ")'"
-endfunction
-
-function! BazelTestQuery(universe, depth)
-  let l:depth = a:depth < 0 ? "" : ", " . a:depth
-  return BazelBinary() . " query 'tests(rdeps(" . a:universe . ", " . BazelPath() . l:depth . "))'"
-endfunction
-
-function! BazelOnBuild(cmd, scope, depth)
- return "cd " . ProjectRoot() . " && " . BazelBuildQuery(a:scope, a:depth) . " | xargs " . BazelBinary() . " " . a:cmd
-endfunction
-
-function! BazelOnTest(cmd, scope, depth)
- return "cd " . ProjectRoot() . " && " . BazelTestQuery(a:scope, a:depth) . " | xargs " . BazelBinary() . " " . a:cmd
-endfunction
-
-function! ClosePreviewWindowOnGoodExit(job_id, data, event)
- if a:event == 'exit' && a:data == 0
-   noautocmd wincmd z
- elseif a:event == 'exit' && a:data != 0
-   noautocmd wincmd P
-   noautocmd 30wincmd +
-   noautocmd wincmd p
- endif
-endfunction
-
-function! RunCommandInPreviewTerminal(cmd)
- " close the window, if it's open
- noautocmd wincmd z
- " and open it again.
- if winnr('$') == '1'
-   " If this is the only window in this tab, open the window on the right,
-   " taking up half of the space.
-   vertical rightbelow pedit +enew
-   noautocmd wincmd =
- else
-   rightbelow pedit +enew
- endif
- noautocmd wincmd p
- call termopen(a:cmd, {'on_exit': 'ClosePreviewWindowOnGoodExit'})
- noautocmd wincmd p
-endfunction
-
-function! RunBazel(cmd, scope)
- if !InWorkspace()
-   echo "not in bazel workspace"
-   return
- endif
- let l:opts = ""
- if !has('nvim')
-   let l:opts = l:opts." --color=no --curses=no"
- endif
- let l:opts = ""
- let l:universe = BazelTargetsForScope(a:scope)
- let l:depth = BazelDepthForScope(a:scope)
- if a:cmd == "build"
-   let l:cmd = "build".l:opts
-   let l:full_cmd = BazelOnBuild(l:cmd, l:universe, l:depth)
-   if has('nvim')
-     call RunCommandInPreviewTerminal(l:full_cmd)
-   else
-     call s:executeinshell(l:full_cmd)
-   endif
- elseif a:cmd == "test"
-   let l:test_args = " --test_summary=terse --test_output=errors"
-   let l:cmd = "test".l:opts.l:test_args
-   let l:full_cmd = BazelOnTest(l:cmd, l:universe, l:depth)
-   if has('nvim')
-     call RunCommandInPreviewTerminal(l:full_cmd)
-   else
-     call s:executeinshell(l:full_cmd)
-   endif
- endif
-endfunction
 
 nnoremap <leader>lb :call RunBazel("build", "target")<cr>
 nnoremap <leader>lt :call RunBazel("test", "target")<cr>
