@@ -128,25 +128,36 @@ set shiftwidth=2    " Indents will have a width of 2
 set softtabstop=2   " Sets the number of columns for a TAB
 set expandtab       " Expand TABs to spaces
 
-au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
-au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
-au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp
-au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
-au BufNewFile,BufFilePre,BufRead *.proto set filetype=proto
-au BufNewFile,BufFilePre,BufRead *.py set filetype=python
-au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
-au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
+" These are likely all covered by filetype plugins, but have kept them around
+" for historical reasons.
+augroup filetypes
+  au!
+  au FileType bzl AutoFormatBuffer buildifier
+  au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
+  au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
+  au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp
+  au BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
+  au BufNewFile,BufFilePre,BufRead *.proto set filetype=proto
+  au BufNewFile,BufFilePre,BufRead *.py set filetype=python
+  au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+  au BufNewFile,BufFilePre,BufRead *.rs set filetype=rust
+augroup END
 
-au filetype bzl set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
-au filetype cpp set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
-au filetype qml set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
-au filetype cuda set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
-au filetype rust set tw=100 fo+=t colorcolumn=101 tabstop=4 shiftwidth=4 softtabstop=4
-au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
-au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
-au filetype hgcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
-au filetype markdown set tw=80 fo+=t colorcolumn=81
-au filetype go set tw=0 fo+=t colorcolumn=81 noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+" Appropriately setup tab widths and add a column indicating the edge where
+" words will wrap.
+augroup tab_and_width_settings
+  au!
+  au filetype bzl set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
+  au filetype cpp set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
+  au filetype qml set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
+  au filetype cuda set tw=80 fo+=t colorcolumn=81 tabstop=2 shiftwidth=2 softtabstop=2
+  au filetype rust set tw=100 fo+=t colorcolumn=101 tabstop=4 shiftwidth=4 softtabstop=4
+  au filetype python set tw=80 fo+=t colorcolumn=81 tabstop=4 shiftwidth=4 softtabstop=4
+  au filetype gitcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
+  au filetype hgcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
+  au filetype markdown set tw=80 fo+=t colorcolumn=81
+  au filetype go set tw=0 fo+=t colorcolumn=81 noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+augroup END
 
 function! PotentialHeaderSourcePair()
  let l:filebase = expand("%:p:r")
@@ -335,13 +346,14 @@ nnoremap <leader>be :execute "edit " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>bt :execute "tabedit " . SearchUpTree("BUILD")<cr>
 
 augroup autoformat_settings
-  autocmd FileType bzl AutoFormatBuffer buildifier
-  autocmd FileType go AutoFormatBuffer gofmt
-  autocmd FileType rust AutoFormatBuffer rustfmt
-  autocmd FileType cpp AutoFormatBuffer clang-format
-  autocmd FileType cuda AutoFormatBuffer clang-format
-  autocmd FileType proto AutoFormatBuffer clang-format
-  autocmd FileType python AutoFormatBuffer yapf
+  au!
+  au FileType bzl AutoFormatBuffer buildifier
+  au FileType go AutoFormatBuffer gofmt
+  au FileType rust AutoFormatBuffer rustfmt
+  au FileType cpp AutoFormatBuffer clang-format
+  au FileType cuda AutoFormatBuffer clang-format
+  au FileType proto AutoFormatBuffer clang-format
+  au FileType python AutoFormatBuffer yapf
 augroup END
 
 function! RustFmtOptions()
