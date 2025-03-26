@@ -311,7 +311,6 @@ set expandtab       " Expand TABs to spaces
 " for historical reasons.
 augroup filetypes
   au!
-  au FileType bzl AutoFormatBuffer buildifier
   au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
   au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
   au BufNewFile,BufFilePre,BufRead *.cpp set filetype=cpp
@@ -336,6 +335,17 @@ augroup tab_and_width_settings
   au filetype hgcommit set tw=72 tabstop=2 fo+=t colorcolumn=73
   au filetype markdown set tw=80 fo+=t colorcolumn=81
   au filetype go set tw=0 fo+=t colorcolumn=81 noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
+augroup END
+
+augroup autoformat_settings
+  au!
+  au FileType bzl AutoFormatBuffer buildifier
+  au FileType go AutoFormatBuffer gofmt
+  au FileType rust AutoFormatBuffer rustfmt
+  au FileType cpp AutoFormatBuffer clang-format
+  au FileType cuda AutoFormatBuffer clang-format
+  au FileType proto AutoFormatBuffer clang-format
+  au FileType python AutoFormatBuffer yapf
 augroup END
 
 
@@ -425,17 +435,6 @@ nnoremap <leader>bv :execute "vsplit " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>bs :execute "split " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>be :execute "edit " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>bt :execute "tabedit " . SearchUpTree("BUILD")<cr>
-
-augroup autoformat_settings
-  au!
-  au FileType bzl AutoFormatBuffer buildifier
-  au FileType go AutoFormatBuffer gofmt
-  au FileType rust AutoFormatBuffer rustfmt
-  au FileType cpp AutoFormatBuffer clang-format
-  au FileType cuda AutoFormatBuffer clang-format
-  au FileType proto AutoFormatBuffer clang-format
-  au FileType python AutoFormatBuffer yapf
-augroup END
 
 Glaive codefmt plugin[mappings] gofmt_executable="goimports"
 Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
