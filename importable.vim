@@ -41,7 +41,6 @@ function! AutoInstallPlug()
 endfunction
 
 call AutoInstallPlug()
-
 call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
@@ -101,7 +100,6 @@ let g:tmuxline_separators = {
 let mapleader="\\"
 map <Space> \
 
-syntax on
 set ruler
 set number
 set hlsearch
@@ -114,8 +112,6 @@ let g:airline_theme='papercolor'
 set background=dark
 colorscheme PaperColor
 set cursorline
-
-set expandtab       " Expand TABs to spaces
 
 let g:ycm_confirm_extra_conf=0
 let g:ycm_autoclose_preview_window_after_completion=1
@@ -131,7 +127,6 @@ set tabstop=2       " The width of a TAB is set to 2.
 set shiftwidth=2    " Indents will have a width of 2
 set softtabstop=2   " Sets the number of columns for a TAB
 set expandtab       " Expand TABs to spaces
-set splitright
 
 au BufNewFile,BufFilePre,BufRead *.h set filetype=cpp
 au BufNewFile,BufFilePre,BufRead *.hh set filetype=cpp
@@ -446,3 +441,5 @@ nnoremap <leader>kt :call RunBazel("test", "package")<cr>
 " Force Doxygen triple comments to the front of comments for C/C++ files.
 autocmd Filetype c,cpp set comments^=:///
 
+filetype plugin indent on
+syntax on
