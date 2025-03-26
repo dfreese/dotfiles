@@ -282,23 +282,6 @@ call plug#end()
 
 call glaive#Install()
 
-let g:tmuxline_preset = {
-      \'a'    : '#S',
-      \'b'    : '#W',
-      \'c'    : '#H',
-      \'win'  : '#I #W',
-      \'cwin' : '#I #W',
-      \'x'    : '%a',
-      \'y'    : '#W %R',
-      \'z'    : '#H'}
-
-let g:tmuxline_separators = {
-    \ 'left' : '',
-    \ 'left_alt': '>',
-    \ 'right' : '',
-    \ 'right_alt' : '<',
-    \ 'space' : ' '}
-
 " Set space to the leader by mapping space to backslash
 " https://superuser.com/a/693644/342470
 let mapleader="\\"
@@ -308,17 +291,9 @@ set ruler
 set number
 set hlsearch
 set showcmd
-" This was the previous theme that I was using.  Leave it here for reference
-" for a while until I'm sure that I'm good with papercolor.
-" let g:airline_theme='luna'
-let g:airline_theme='papercolor'
-" colorscheme desert
 set background=dark
-colorscheme PaperColor
+colorscheme PaperColor " desert is a good fallback for standard vim
 set cursorline
-
-let g:ycm_confirm_extra_conf=0
-let g:ycm_autoclose_preview_window_after_completion=1
 
 " apply ycm fixit
 map <C-p> :YcmCompleter FixIt<cr>
@@ -363,6 +338,27 @@ augroup tab_and_width_settings
   au filetype go set tw=0 fo+=t colorcolumn=81 noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
 augroup END
 
+
+let g:airline_theme='papercolor'
+let g:tmuxline_preset = {
+      \'a'    : '#S',
+      \'b'    : '#W',
+      \'c'    : '#H',
+      \'win'  : '#I #W',
+      \'cwin' : '#I #W',
+      \'x'    : '%a',
+      \'y'    : '#W %R',
+      \'z'    : '#H'}
+
+let g:tmuxline_separators = {
+    \ 'left' : '',
+    \ 'left_alt': '>',
+    \ 'right' : '',
+    \ 'right_alt' : '<',
+    \ 'space' : ' '}
+
+let g:ycm_confirm_extra_conf=0
+let g:ycm_autoclose_preview_window_after_completion=1
 let g:bazel_global_excludes = []
 let g:bazel_workspace_indicators = [
       \ "MODULE.bazel",
