@@ -279,6 +279,10 @@ call plug#end()
 
 call glaive#Install()
 
+Glaive codefmt plugin[mappings] gofmt_executable="goimports"
+Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
+Glaive codefmt plugin[mappings] clang_format_style="Google"
+
 " Set space to the leader by mapping space to backslash
 " https://superuser.com/a/693644/342470
 let mapleader="\\"
@@ -430,10 +434,6 @@ nnoremap <leader>bv :execute "vsplit " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>bs :execute "split " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>be :execute "edit " . SearchUpTree("BUILD")<cr>
 nnoremap <leader>bt :execute "tabedit " . SearchUpTree("BUILD")<cr>
-
-Glaive codefmt plugin[mappings] gofmt_executable="goimports"
-Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
-Glaive codefmt plugin[mappings] clang_format_style="Google"
 
 nnoremap <leader>lb :call RunBazel("build", "target")<cr>
 nnoremap <leader>lt :call RunBazel("test", "target")<cr>
