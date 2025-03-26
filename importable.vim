@@ -295,10 +295,6 @@ set background=dark
 colorscheme PaperColor " desert is a good fallback for standard vim
 set cursorline
 
-" apply ycm fixit
-map <C-p> :YcmCompleter FixIt<cr>
-
-
 set tabstop=2       " The width of a TAB is set to 2.
                     " Still it is a \t. It is just that
                     " Vim will interpret it to be having
