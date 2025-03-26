@@ -1,7 +1,4 @@
-set nocompatible              " be iMproved, required
-filetype off                  " required
-set splitright
-set mouse=
+set nocompatible
 
 function! FileExists(file)
   " https://stackoverflow.com/a/23496813
@@ -294,6 +291,8 @@ set showcmd
 set background=dark
 colorscheme PaperColor " desert is a good fallback for standard vim
 set cursorline
+set splitright
+set mouse=
 
 set tabstop=2       " The width of a TAB is set to 2.
                     " Still it is a \t. It is just that
