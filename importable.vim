@@ -384,8 +384,8 @@ nnoremap <leader>s :execute "SK " . SkimTarget()<CR>
 
 " Add a leader shortcut because key combination was finiky
 nnoremap <leader>w <C-w>
-nnoremap <leader>r :tabnext<cr>
-nnoremap <leader>t :tabNext<cr>
+nnoremap <leader>t :tabnext<cr>
+nnoremap <leader>r :tabNext<cr>
 nnoremap <leader>n :noh<CR>
 " make it so escape gets out of terminal mode, instead of whatever it was for
 " the default.  Like I'll remember that...
