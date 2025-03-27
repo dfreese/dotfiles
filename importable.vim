@@ -19,10 +19,6 @@ function! SearchUpTree(file)
   return SearchUpTreeImpl(expand("%:p:h"), a:file)
 endfunction
 
-function! RustFmtOptions()
-  return ["--edition=2018"]
-endfunction
-
 function! PotentialHeaderSourcePair()
  let l:filebase = expand("%:p:r")
  let l:fileext = expand("%:e")
@@ -280,7 +276,6 @@ call plug#end()
 call glaive#Install()
 
 Glaive codefmt plugin[mappings] gofmt_executable="goimports"
-Glaive codefmt plugin[mappings] rustfmt_options="RustFmtOptions"
 Glaive codefmt plugin[mappings] clang_format_style="Google"
 
 " These are likely all covered by filetype plugins, but have kept them around
