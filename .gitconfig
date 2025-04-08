@@ -7,6 +7,8 @@
   excludesfile = ~/dotfiles/global.gitignore
 [diff]
   tool = meld
+[merge]
+  conflictstyle = zdiff3
 [alias]
   # Basic abbreviations
   a = add
